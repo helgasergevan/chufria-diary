@@ -376,7 +376,7 @@ function renderAlbum(id){
     </div>`;
   }
   if(entry.videoUrl){
-    const ytId=(entry.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([A-Za-z0-9_-]{11})/)||[])[1];
+    const ytId=(entry.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/)||[])[1];
     if(ytId)html+=`<div class="video-block"><iframe src="https://www.youtube.com/embed/${ytId}?rel=0" allow="autoplay;encrypted-media" allowfullscreen></iframe></div>`;
   }
   if((entry.tags||[]).length)html+=`<div class="tags-row">${entry.tags.map(t=>{const c=getTagColor(t);return`<span class="tag-big" style="background:${c.bg};color:${c.color};">${t}</span>`;}).join('')}</div>`;
