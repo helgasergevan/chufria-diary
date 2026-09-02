@@ -249,7 +249,7 @@ body{background:var(--cream);font-family:var(--sans);color:var(--ink);min-height
 <div class="toast" id="toast"></div>
 
 <script>
-const API='https://script.google.com/macros/s/AKfycbzlFwQAQMOLzou4kgOafOZmBtkrCoLCBhclgRcme4oT_OARdRS5bgGVurNkYUop-jYBuA/exec';
+const API='https://script.google.com/macros/s/AKfycbyH57K7l2bDbc9uZX0aPT-fsiqe-0uSvI3sAauiDcm4n5XPvUaeK72SOi1zxvXg_kQj_Q/exec';
 const TAG_COLORS=[{bg:'#F5DDE0',color:'#8B2635'},{bg:'#E2EDD8',color:'#3A5C3A'},{bg:'#EDE8F5',color:'#5B4A8A'},{bg:'#F7EDD0',color:'#8A6020'},{bg:'#D6EAF0',color:'#1A5C78'},{bg:'#F0EAD6',color:'#6B4C1E'}];
 const PRESET_TAGS=['природа','город','праздник','день рождения','кино','кафе','путешествие','дома','лето','зима','весна','осень'];
 const MONTHS=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
@@ -268,11 +268,14 @@ function plural(n,a,b,c){if(n%10===1&&n%100!==11)return a;if([2,3,4].includes(n%
 function driveToImg(url){
   if(!url)return'';
   url=url.trim();
-  // already direct
-  if(url.includes('drive.google.com/uc'))return url;
-  // file/d/ID/view
+  // already thumbnail
+  if(url.includes('drive.google.com/thumbnail'))return url;
+  // extract file ID from any Google Drive link
   const m=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  if(m)return'https://drive.google.com/uc?export=view&id='+m[1];
+  if(m)return'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w1200';
+  // already direct uc link - convert to thumbnail
+  const m2=url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if(m2)return'https://drive.google.com/thumbnail?id='+m2[1]+'&sz=w1200';
   return url;
 }
 
@@ -474,8 +477,7 @@ async function submitEntry(){
   btn.disabled=true;btn.textContent='сохраняю...';
   try{
     if(editId){
-      await apiPost({action:'delete',id:editId});
-      await apiPost({action:'add',entry});
+      await apiPost({action:'update',entry});
       entries=entries.filter(e=>e.id!=editId);
     } else {
       await apiPost({action:'add',entry});
