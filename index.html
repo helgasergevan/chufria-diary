@@ -122,10 +122,10 @@ body {
   <p class="main-subtitle">наши маленькие большие встречи</p>
   <div class="divider-ornament">— ✦ —</div>
   <div class="avatars-row">
-    <div class="av" style="background:#F5DDE0;color:#8B2635;">О</div>
-    <div class="av" style="background:#E2EDD8;color:#3A5C3A;">М</div>
-    <div class="av" style="background:#EDE8F5;color:#5B4A8A;">А</div>
-    <div class="av" style="background:#F7EDD0;color:#8A6020;">К</div>
+    <div class="av" style="background:#F5DDE0;font-size:20px;">🧑‍🦲</div>
+    <div class="av" style="background:#E2EDD8;font-size:20px;">👱‍♀️</div>
+    <div class="av" style="background:#EDE8F5;font-size:20px;">👱‍♀️</div>
+    <div class="av" style="background:#F7EDD0;font-size:20px;">👩‍🦳</div>
   </div>
   <div id="yearsGrid" class="years-grid"><div class="loading">загружаю воспоминания...</div></div>
   <button class="add-entry-btn" onclick="showScreen('form')">+ добавить воспоминание</button>
@@ -223,12 +223,14 @@ function getTagColor(s) {
 }
 
 function formatDate(d) {
-  const dt = new Date(d + 'T12:00:00');
+  if (!d) return '';
+  const dt = new Date(String(d).includes('T') ? d : d + 'T12:00:00');
+  if (isNaN(dt)) return String(d);
   return dt.getDate() + ' ' + MONTHS_GEN[dt.getMonth()] + ' ' + dt.getFullYear();
 }
 
-function getYear(d) { return new Date(d + 'T12:00:00').getFullYear(); }
-function getMonth(d) { return new Date(d + 'T12:00:00').getMonth(); }
+function getYear(d) { if (!d) return 'unknown'; const dt = new Date(String(d).includes('T') ? d : d + 'T12:00:00'); return isNaN(dt) ? 'unknown' : dt.getFullYear(); }
+function getMonth(d) { if (!d) return 0; const dt = new Date(String(d).includes('T') ? d : d + 'T12:00:00'); return isNaN(dt) ? 0 : dt.getMonth(); }
 function plural(n,a,b,c) {
   if (n%10===1&&n%100!==11) return a;
   if ([2,3,4].includes(n%10)&&![12,13,14].includes(n%100)) return b;
@@ -270,7 +272,7 @@ function renderMain() {
     const y = getYear(e.date);
     years[y] = (years[y]||0) + 1;
   });
-  const sorted = Object.keys(years).sort((a,b) => b-a);
+  const sorted = Object.keys(years).filter(y => y !== 'unknown').sort((a,b) => b-a);
   const grid = document.getElementById('yearsGrid');
   if (!sorted.length) {
     grid.innerHTML = '<div style="color:var(--ink-light);font-family:var(--serif);font-style:italic;font-size:14px;width:100%;text-align:center;">пока пусто — добавь первое воспоминание 🍒</div>';
