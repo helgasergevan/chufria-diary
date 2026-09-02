@@ -393,11 +393,11 @@ function renderAlbum(id){
   document.getElementById('albumBackBtn').onclick=()=>showScreen('year',getYear(entry.date));
   let html='';
   if(entry.desc)html+=`<div class="album-desc">${entry.desc}</div>`;
-  const jokes=entry.jokes||[];
-  if(jokes.length){
+  const jokes=Array.isArray(entry.jokes)?entry.jokes.filter(Boolean):parseJokes(entry.jokes);
+  if(jokes&&jokes.length){
     html+=`<div class="jokes-block">
       <div class="jokes-title">😂 мемы встречи</div>
-      ${jokes.map((j,i)=>`<div class="joke-item"><span class="joke-text">• ${j}</span></div>`).join('')}
+      ${jokes.map(j=>`<div class="joke-item"><span class="joke-text">• ${j}</span></div>`).join('')}
     </div>`;}
   const photos=entry.photos||[];
   if(photos.length){
