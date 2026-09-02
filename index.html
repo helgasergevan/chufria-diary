@@ -179,7 +179,7 @@ body{background:var(--cream);font-family:var(--sans);color:var(--ink);min-height
     <div class="av" style="background:#F7EDD0;">👩‍🦳</div>
   </div>
   <div id="yearsGrid" class="years-grid"><div class="loading">загружаю воспоминания...</div></div>
-  <button class="add-entry-btn" onclick="showScreen('form')">+ добавить воспоминание</button>
+  <button class="add-entry-btn" onclick="if(checkAdmin())showScreen('form')">+ добавить воспоминание</button>
 </div>
 
 <!-- YEAR -->
@@ -241,7 +241,7 @@ body{background:var(--cream);font-family:var(--sans);color:var(--ink);min-height
       <input class="form-input" id="f-video" placeholder="https://youtu.be/...">
     </div>
     <div class="form-group">
-      <label class="form-label">😂 приколы вечера</label>
+      <label class="form-label">😂 мемы встречи</label>
       <div class="photos-note">Каждый прикол — на отдельной строке</div>
       <textarea class="form-textarea" id="f-jokes" placeholder="«это теперь наш мем»&#10;«никогда не произноси это слово»&#10;..." style="margin-top:6px;min-height:80px;font-size:14px;"></textarea>
     </div>
@@ -266,6 +266,16 @@ body{background:var(--cream);font-family:var(--sans);color:var(--ink);min-height
 
 <script>
 const API='https://script.google.com/macros/s/AKfycbwMHG7qKveAlqCi6oicH3qZhAJL_xuzClrXtHk0f4LTWYdGv0EzWsRHXsvswezI0xN6Qw/exec';
+const ADMIN_PASSWORD='0000';
+let isAdmin=false;
+
+function checkAdmin(){
+  if(isAdmin)return true;
+  const p=prompt('Введи пароль чтобы добавить воспоминание:');
+  if(p===ADMIN_PASSWORD){isAdmin=true;return true;}
+  if(p!==null)showToast('неверный пароль',true);
+  return false;
+}
 const TAG_COLORS=[{bg:'#F5DDE0',color:'#8B2635'},{bg:'#E2EDD8',color:'#3A5C3A'},{bg:'#EDE8F5',color:'#5B4A8A'},{bg:'#F7EDD0',color:'#8A6020'},{bg:'#D6EAF0',color:'#1A5C78'},{bg:'#F0EAD6',color:'#6B4C1E'}];
 const PRESET_TAGS=['природа','город','праздник','день рождения','кино','кафе','путешествие','дома','лето','зима','весна','осень'];
 const MONTHS=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
@@ -303,10 +313,10 @@ function parsePhotos(raw){
 }
 
 function parseJokes(raw){
-  if(!raw)return[];
-  if(Array.isArray(raw))return raw;
-  try{const p=JSON.parse(raw);if(Array.isArray(p))return p;}catch(e){}
-  return raw.split('\n').map(s=>s.trim()).filter(Boolean);
+  if(!raw||raw===''||raw==='[]')return[];
+  if(Array.isArray(raw))return raw.filter(Boolean);
+  try{const p=JSON.parse(raw);if(Array.isArray(p))return p.filter(Boolean);}catch(e){}
+  return String(raw).split('\n').map(s=>s.trim()).filter(Boolean);
 }
 
 async function loadEntries(){
@@ -386,7 +396,7 @@ function renderAlbum(id){
   const jokes=entry.jokes||[];
   if(jokes.length){
     html+=`<div class="jokes-block">
-      <div class="jokes-title">😂 приколы вечера</div>
+      <div class="jokes-title">😂 мемы встречи</div>
       ${jokes.map((j,i)=>`<div class="joke-item"><span class="joke-text">• ${j}</span></div>`).join('')}
     </div>`;}
   const photos=entry.photos||[];
@@ -410,7 +420,7 @@ function renderAlbum(id){
   }
   if((entry.tags||[]).length)html+=`<div class="tags-row">${entry.tags.map(t=>{const c=getTagColor(t);return`<span class="tag-big" style="background:${c.bg};color:${c.color};">${t}</span>`;}).join('')}</div>`;
   html+=`<div class="action-btns">
-    <button class="btn-outline" onclick="showScreen('form',${id})">✏️ редактировать</button>
+    <button class="btn-outline" onclick="if(checkAdmin())showScreen('form',${id})">✏️ редактировать</button>
     <button class="btn-outline" onclick="deleteEntry(${id})">🗑 удалить</button>
   </div>`;
   document.getElementById('albumContent').innerHTML=html;
