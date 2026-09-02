@@ -233,10 +233,6 @@ body{background:var(--cream);font-family:var(--sans);color:var(--ink);min-height
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label">эмодзи для обложки</label>
-      <input class="form-input" id="f-emoji" placeholder="🌸 🍂 🎂 ☕" maxlength="4">
-    </div>
-    <div class="form-group">
       <label class="form-label">ссылка на видео (YouTube)</label>
       <input class="form-input" id="f-video" placeholder="https://youtu.be/...">
     </div>
@@ -393,7 +389,9 @@ function renderAlbum(id){
   document.getElementById('albumBackBtn').onclick=()=>showScreen('year',getYear(entry.date));
   let html='';
   if(entry.desc)html+=`<div class="album-desc">${entry.desc}</div>`;
-  const jokes=Array.isArray(entry.jokes)?entry.jokes.filter(Boolean):parseJokes(entry.jokes);
+  let jokes=[];
+  if(Array.isArray(entry.jokes))jokes=entry.jokes.filter(Boolean);
+  else if(entry.jokes)jokes=parseJokes(entry.jokes);
   if(jokes&&jokes.length){
     html+=`<div class="jokes-block">
       <div class="jokes-title">😂 мемы встречи</div>
@@ -456,7 +454,7 @@ function renderForm(editId){
       document.getElementById('f-title').value=e.title||'';
       document.getElementById('f-date').value=e.date||'';
       document.getElementById('f-desc').value=e.desc||'';
-      document.getElementById('f-emoji').value=e.emoji||'';
+      
       document.getElementById('f-video').value=e.videoUrl||'';
       document.getElementById('f-jokes').value=(e.jokes||[]).join('\n');
       // show original links (stored as converted, show as-is)
@@ -464,7 +462,7 @@ function renderForm(editId){
       selectedTags=[...(e.tags||[])];
     }
   } else {
-    ['f-title','f-desc','f-emoji','f-video','f-photos','f-jokes','f-newtag'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    ['f-title','f-desc','f-video','f-photos','f-jokes','f-newtag'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';}); 
     document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
   }
   const row=document.getElementById('tagsRow');
@@ -511,7 +509,7 @@ async function submitEntry(){
     title,date,
     desc:document.getElementById('f-desc').value.trim(),
     tags:[...selectedTags],
-    emoji:document.getElementById('f-emoji').value.trim()||'📸',
+    emoji:'📸',
     photos,
     jokes,
     videoUrl:document.getElementById('f-video').value.trim(),
