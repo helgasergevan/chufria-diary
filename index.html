@@ -7,111 +7,151 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Nunito:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --cream: #FBF5EC;
-  --cream-dark: #F2E8D6;
-  --cherry: #8B2635;
-  --cherry-light: #C4526A;
-  --cherry-pale: #F5DDE0;
-  --green-dark: #3A5C3A;
-  --green-mid: #6B8F5E;
-  --green-pale: #E2EDD8;
-  --gold: #C49A3C;
-  --gold-pale: #F7EDD0;
-  --ink: #2C1810;
-  --ink-mid: #5C3D2E;
-  --ink-light: #9B7B6B;
-  --paper: #FFF9F0;
-  --serif: 'Playfair Display', Georgia, serif;
-  --sans: 'Nunito', sans-serif;
+  --cream:#FBF5EC;--cream-dark:#F2E8D6;--cherry:#8B2635;--cherry-light:#C4526A;
+  --cherry-pale:#F5DDE0;--green-dark:#3A5C3A;--gold:#C49A3C;--gold-pale:#F7EDD0;
+  --ink:#2C1810;--ink-mid:#5C3D2E;--ink-light:#9B7B6B;--paper:#FFF9F0;
+  --serif:'Playfair Display',Georgia,serif;--sans:'Nunito',sans-serif;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: var(--cream);
-  font-family: var(--sans);
-  color: var(--ink);
-  min-height: 100vh;
-  background-image:
-    radial-gradient(ellipse at 10% 20%, rgba(196,82,106,0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 90% 80%, rgba(107,143,94,0.06) 0%, transparent 50%);
-}
-.deco { position: fixed; pointer-events: none; z-index: 0; opacity: 0.18; }
-.screen { display: none; min-height: 100vh; position: relative; z-index: 1; }
-.screen.active { display: block; }
-#screen-main { display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 3rem 1.5rem; min-height: 100vh; }
-#screen-main.active { display: flex; }
-.main-deco-top { font-size: 32px; margin-bottom: 0.5rem; letter-spacing: 8px; }
-.main-title { font-family: var(--serif); font-size: clamp(36px, 8vw, 64px); color: var(--cherry); line-height: 1.1; margin-bottom: 0.25rem; font-style: italic; }
-.main-subtitle { font-family: var(--serif); font-size: 16px; color: var(--ink-light); margin-bottom: 0.5rem; font-style: italic; }
-.divider-ornament { color: var(--gold); font-size: 18px; letter-spacing: 6px; margin: 1rem 0; }
-.avatars-row { display: flex; justify-content: center; gap: 8px; margin: 0.75rem 0 2rem; }
-.av { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; border: 1.5px solid rgba(255,255,255,0.6); font-family: var(--serif); }
-.years-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 440px; margin: 0 auto 2rem; }
-.year-card { background: var(--paper); border: 1px solid rgba(139,38,53,0.18); border-radius: 16px; padding: 1.2rem 1.5rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; min-width: 110px; text-align: center; position: relative; overflow: hidden; }
-.year-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--cherry-light), var(--gold)); border-radius: 16px 16px 0 0; }
-.year-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(139,38,53,0.12); }
-.year-num { font-family: var(--serif); font-size: 28px; color: var(--cherry); font-weight: 600; line-height: 1; margin-bottom: 4px; }
-.year-count { font-size: 11px; color: var(--ink-light); }
-.add-entry-btn { background: var(--cherry); color: white; border: none; border-radius: 50px; padding: 12px 28px; font-family: var(--sans); font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s, transform 0.1s; margin-top: 0.5rem; }
-.add-entry-btn:hover { background: #6E1D29; }
-.add-entry-btn:active { transform: scale(0.97); }
-.year-header { background: var(--paper); border-bottom: 1px solid rgba(139,38,53,0.12); padding: 1.2rem 1.5rem; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
-.back-btn { background: none; border: 1px solid rgba(139,38,53,0.2); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--cherry); font-size: 18px; transition: background 0.15s; flex-shrink: 0; }
-.back-btn:hover { background: var(--cherry-pale); }
-.year-header-title { font-family: var(--serif); font-size: 24px; color: var(--cherry); font-style: italic; flex: 1; }
-.albums-list { padding: 1.5rem; max-width: 640px; margin: 0 auto; }
-.month-sep { font-family: var(--serif); font-size: 13px; color: var(--ink-light); font-style: italic; margin: 1.5rem 0 0.75rem; display: flex; align-items: center; gap: 10px; }
-.month-sep::after { content: ''; flex: 1; height: 0.5px; background: rgba(139,38,53,0.15); }
-.album-card { background: var(--paper); border: 1px solid rgba(139,38,53,0.12); border-radius: 16px; padding: 1.1rem 1.25rem; margin-bottom: 12px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; align-items: center; gap: 14px; }
-.album-card:hover { transform: translateX(4px); box-shadow: 0 4px 16px rgba(139,38,53,0.08); }
-.album-thumb { width: 64px; height: 64px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 28px; }
-.album-info { flex: 1; min-width: 0; }
-.album-title { font-family: var(--serif); font-size: 16px; color: var(--ink); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.album-date { font-size: 12px; color: var(--ink-light); margin-bottom: 6px; }
-.album-tags { display: flex; gap: 4px; flex-wrap: wrap; }
-.tag { font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 600; }
-.album-arrow { color: var(--ink-light); font-size: 18px; flex-shrink: 0; }
-.album-header { background: var(--paper); border-bottom: 1px solid rgba(139,38,53,0.12); padding: 1.2rem 1.5rem; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 12px; }
-.album-content { padding: 1.5rem; max-width: 640px; margin: 0 auto; }
-.album-desc { font-family: var(--serif); font-size: 15px; color: var(--ink-mid); line-height: 1.8; font-style: italic; margin-bottom: 1.5rem; padding: 1rem 1.25rem; background: var(--gold-pale); border-left: 3px solid var(--gold); border-radius: 0 8px 8px 0; }
-.fan-wrap { position: relative; height: 220px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; }
-.fan-photo { position: absolute; width: 140px; height: 165px; border-radius: 10px; border: 4px solid white; box-shadow: 0 4px 16px rgba(44,24,16,0.18); overflow: hidden; transition: transform 0.3s ease; cursor: pointer; background: var(--cream-dark); display: flex; align-items: center; justify-content: center; font-size: 36px; }
-.fan-photo:hover { transform: rotate(0deg) translateY(-20px) scale(1.06) !important; z-index: 10 !important; }
-.video-block { background: var(--ink); border-radius: 12px; overflow: hidden; margin-bottom: 1.5rem; aspect-ratio: 16/9; }
-.video-block iframe { width: 100%; height: 100%; border: none; }
-.tags-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2rem; }
-.tag-big { font-size: 12px; padding: 4px 12px; border-radius: 20px; font-weight: 600; }
-.filter-bar { padding: 0.75rem 1.5rem; display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 1px solid rgba(139,38,53,0.08); background: var(--cream); }
-.filter-tag { font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(139,38,53,0.2); background: transparent; color: var(--ink-mid); cursor: pointer; font-family: var(--sans); font-weight: 600; transition: all 0.15s; }
-.filter-tag.active { background: var(--cherry); color: white; border-color: var(--cherry); }
-#screen-form { padding: 0; }
-.form-header { background: var(--paper); border-bottom: 1px solid rgba(139,38,53,0.12); padding: 1.2rem 1.5rem; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
-.form-body { padding: 1.5rem; max-width: 560px; margin: 0 auto; }
-.form-group { margin-bottom: 1.2rem; }
-.form-label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-mid); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
-.form-input, .form-textarea { width: 100%; padding: 10px 14px; border: 1px solid rgba(139,38,53,0.2); border-radius: 10px; background: var(--paper); font-family: var(--sans); font-size: 15px; color: var(--ink); outline: none; transition: border-color 0.15s; -webkit-appearance: none; }
-.form-input:focus, .form-textarea:focus { border-color: var(--cherry-light); box-shadow: 0 0 0 3px rgba(196,82,106,0.1); }
-.form-textarea { resize: vertical; min-height: 80px; }
-.tags-input-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
-.tag-pill { background: var(--cherry-pale); color: var(--cherry); font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 600; cursor: pointer; border: none; font-family: var(--sans); }
-.tag-pill.selected { background: var(--cherry); color: white; }
-.photos-note { font-size: 12px; color: var(--ink-light); font-style: italic; padding: 10px 14px; background: var(--gold-pale); border-radius: 10px; line-height: 1.5; }
-.submit-btn { width: 100%; background: var(--cherry); color: white; border: none; border-radius: 50px; padding: 14px; font-family: var(--sans); font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 1rem; transition: background 0.15s; }
-.submit-btn:hover { background: #6E1D29; }
-.submit-btn:disabled { background: var(--ink-light); cursor: not-allowed; }
-.loading { text-align: center; padding: 3rem; font-family: var(--serif); font-style: italic; color: var(--ink-light); font-size: 15px; }
-.empty-state { text-align: center; padding: 3rem 1.5rem; color: var(--ink-light); font-family: var(--serif); font-style: italic; font-size: 15px; }
-.toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--green-dark); color: white; padding: 10px 20px; border-radius: 50px; font-size: 14px; font-weight: 600; z-index: 100; transition: transform 0.3s; pointer-events: none; }
-.toast.show { transform: translateX(-50%) translateY(0); }
-.toast.error { background: var(--cherry); }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--cream);font-family:var(--sans);color:var(--ink);min-height:100vh;
+  background-image:radial-gradient(ellipse at 10% 20%,rgba(196,82,106,.06) 0%,transparent 50%),
+  radial-gradient(ellipse at 90% 80%,rgba(107,143,94,.06) 0%,transparent 50%);}
+.deco{position:fixed;pointer-events:none;z-index:0;opacity:.18;}
+.screen{display:none;min-height:100vh;position:relative;z-index:1;}
+.screen.active{display:block;}
+#screen-main{display:none;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:3rem 1.5rem;min-height:100vh;}
+#screen-main.active{display:flex;}
+.main-deco-top{font-size:32px;margin-bottom:.5rem;letter-spacing:8px;}
+.main-title{font-family:var(--serif);font-size:clamp(36px,8vw,64px);color:var(--cherry);
+  line-height:1.1;margin-bottom:.25rem;font-style:italic;}
+.main-subtitle{font-family:var(--serif);font-size:16px;color:var(--ink-light);
+  margin-bottom:.5rem;font-style:italic;}
+.divider-ornament{color:var(--gold);font-size:18px;letter-spacing:6px;margin:1rem 0;}
+.avatars-row{display:flex;justify-content:center;gap:8px;margin:.75rem 0 2rem;}
+.av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:22px;border:1.5px solid rgba(255,255,255,.6);}
+.years-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;
+  max-width:440px;margin:0 auto 2rem;}
+.year-card{background:var(--paper);border:1px solid rgba(139,38,53,.18);border-radius:16px;
+  padding:1.2rem 1.5rem;cursor:pointer;transition:transform .2s,box-shadow .2s;
+  min-width:110px;text-align:center;position:relative;overflow:hidden;}
+.year-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--cherry-light),var(--gold));border-radius:16px 16px 0 0;}
+.year-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(139,38,53,.12);}
+.year-num{font-family:var(--serif);font-size:28px;color:var(--cherry);font-weight:600;
+  line-height:1;margin-bottom:4px;}
+.year-count{font-size:11px;color:var(--ink-light);}
+.add-entry-btn{background:var(--cherry);color:white;border:none;border-radius:50px;
+  padding:12px 28px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;transition:background .15s;margin-top:.5rem;}
+.add-entry-btn:hover{background:#6E1D29;}
+.top-bar{background:var(--paper);border-bottom:1px solid rgba(139,38,53,.12);
+  padding:1.2rem 1.5rem;display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;z-index:10;}
+.back-btn{background:none;border:1px solid rgba(139,38,53,.2);border-radius:50%;
+  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--cherry);font-size:18px;transition:background .15s;flex-shrink:0;}
+.back-btn:hover{background:var(--cherry-pale);}
+.top-bar-title{font-family:var(--serif);font-size:22px;color:var(--cherry);
+  font-style:italic;flex:1;}
+.filter-bar{padding:.75rem 1.5rem;display:flex;gap:6px;flex-wrap:wrap;
+  border-bottom:1px solid rgba(139,38,53,.08);background:var(--cream);}
+.filter-tag{font-size:12px;padding:4px 12px;border-radius:20px;
+  border:1px solid rgba(139,38,53,.2);background:transparent;color:var(--ink-mid);
+  cursor:pointer;font-family:var(--sans);font-weight:600;transition:all .15s;}
+.filter-tag.active{background:var(--cherry);color:white;border-color:var(--cherry);}
+.albums-list{padding:1.5rem;max-width:640px;margin:0 auto;}
+.month-sep{font-family:var(--serif);font-size:13px;color:var(--ink-light);font-style:italic;
+  margin:1.5rem 0 .75rem;display:flex;align-items:center;gap:10px;}
+.month-sep::after{content:'';flex:1;height:.5px;background:rgba(139,38,53,.15);}
+.album-card{background:var(--paper);border:1px solid rgba(139,38,53,.12);border-radius:16px;
+  padding:1.1rem 1.25rem;margin-bottom:12px;cursor:pointer;
+  transition:transform .2s,box-shadow .2s;display:flex;align-items:center;gap:14px;}
+.album-card:hover{transform:translateX(4px);box-shadow:0 4px 16px rgba(139,38,53,.08);}
+.album-thumb{width:64px;height:64px;border-radius:12px;flex-shrink:0;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;font-size:28px;background:var(--cream-dark);}
+.album-thumb img{width:100%;height:100%;object-fit:cover;}
+.album-info{flex:1;min-width:0;}
+.album-title{font-family:var(--serif);font-size:16px;color:var(--ink);margin-bottom:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.album-date{font-size:12px;color:var(--ink-light);margin-bottom:6px;}
+.album-tags{display:flex;gap:4px;flex-wrap:wrap;}
+.tag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;}
+.album-arrow{color:var(--ink-light);font-size:18px;flex-shrink:0;}
+.album-content{padding:1.5rem;max-width:640px;margin:0 auto;}
+.album-desc{font-family:var(--serif);font-size:15px;color:var(--ink-mid);line-height:1.8;
+  font-style:italic;margin-bottom:1.5rem;padding:1rem 1.25rem;background:var(--gold-pale);
+  border-left:3px solid var(--gold);border-radius:0 8px 8px 0;}
+/* Photo grid */
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:8px;margin-bottom:1.5rem;}
+.photo-grid-item{border-radius:10px;overflow:hidden;aspect-ratio:1;
+  background:var(--cream-dark);cursor:pointer;}
+.photo-grid-item img{width:100%;height:100%;object-fit:cover;transition:transform .2s;}
+.photo-grid-item:hover img{transform:scale(1.05);}
+/* Lightbox */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);
+  z-index:200;align-items:center;justify-content:center;padding:1rem;}
+.lightbox.open{display:flex;}
+.lightbox img{max-width:100%;max-height:90vh;border-radius:8px;object-fit:contain;}
+.lightbox-close{position:absolute;top:1rem;right:1rem;background:none;border:none;
+  color:white;font-size:32px;cursor:pointer;line-height:1;}
+.lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);
+  border:none;color:white;font-size:28px;cursor:pointer;padding:.5rem 1rem;border-radius:8px;}
+.lightbox-prev{left:.5rem;}
+.lightbox-next{right:.5rem;}
+.video-block{background:var(--ink);border-radius:12px;overflow:hidden;
+  margin-bottom:1.5rem;aspect-ratio:16/9;}
+.video-block iframe{width:100%;height:100%;border:none;}
+.tags-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem;}
+.tag-big{font-size:12px;padding:4px 12px;border-radius:20px;font-weight:600;}
+.action-btns{display:flex;gap:8px;margin-top:.5rem;}
+.btn-outline{flex:1;padding:10px;border:1px solid rgba(139,38,53,.2);border-radius:10px;
+  background:transparent;color:var(--cherry);font-family:var(--sans);font-size:13px;
+  cursor:pointer;transition:background .15s;}
+.btn-outline:hover{background:var(--cherry-pale);}
+/* Form */
+.form-body{padding:1.5rem;max-width:560px;margin:0 auto;padding-bottom:3rem;}
+.form-group{margin-bottom:1.2rem;}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--ink-mid);
+  margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;}
+.form-input,.form-textarea{width:100%;padding:10px 14px;
+  border:1px solid rgba(139,38,53,.2);border-radius:10px;background:var(--paper);
+  font-family:var(--sans);font-size:15px;color:var(--ink);outline:none;
+  transition:border-color .15s;-webkit-appearance:none;}
+.form-input:focus,.form-textarea:focus{border-color:var(--cherry-light);
+  box-shadow:0 0 0 3px rgba(196,82,106,.1);}
+.form-textarea{resize:vertical;min-height:80px;}
+.tags-input-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
+.tag-pill{background:var(--cherry-pale);color:var(--cherry);font-size:12px;
+  padding:3px 10px;border-radius:20px;font-weight:600;cursor:pointer;border:none;
+  font-family:var(--sans);}
+.tag-pill.selected{background:var(--cherry);color:white;}
+.photos-note{font-size:12px;color:var(--ink-light);font-style:italic;
+  padding:10px 14px;background:var(--gold-pale);border-radius:10px;line-height:1.6;}
+.submit-btn{width:100%;background:var(--cherry);color:white;border:none;
+  border-radius:50px;padding:14px;font-family:var(--sans);font-size:15px;
+  font-weight:700;cursor:pointer;margin-top:1rem;transition:background .15s;}
+.submit-btn:hover{background:#6E1D29;}
+.submit-btn:disabled{background:var(--ink-light);cursor:not-allowed;}
+.loading{text-align:center;padding:3rem;font-family:var(--serif);
+  font-style:italic;color:var(--ink-light);font-size:15px;}
+.empty-state{text-align:center;padding:3rem 1.5rem;color:var(--ink-light);
+  font-family:var(--serif);font-style:italic;font-size:15px;}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);
+  background:var(--green-dark);color:white;padding:10px 20px;border-radius:50px;
+  font-size:14px;font-weight:600;z-index:100;transition:transform .3s;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.error{background:var(--cherry);}
 </style>
 </head>
 <body>
 
-<!-- Deco cherries -->
 <div class="deco" style="top:5%;left:2%;width:80px;height:80px;">
-<svg viewBox="0 0 80 80" fill="none"><circle cx="24" cy="56" r="14" fill="#8B2635"/><circle cx="52" cy="60" r="12" fill="#8B2635"/><path d="M24 42 Q36 10 52 48" stroke="#3A5C3A" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M38 18 Q42 8 46 14" stroke="#3A5C3A" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+<svg viewBox="0 0 80 80" fill="none"><circle cx="24" cy="56" r="14" fill="#8B2635"/><circle cx="52" cy="60" r="12" fill="#8B2635"/><path d="M24 42 Q36 10 52 48" stroke="#3A5C3A" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>
 </div>
-<div class="deco" style="bottom:10%;right:3%;width:70px;height:70px;opacity:0.12;">
+<div class="deco" style="bottom:10%;right:3%;width:70px;height:70px;opacity:.12;">
 <svg viewBox="0 0 70 70" fill="none"><circle cx="20" cy="50" r="12" fill="#8B2635"/><circle cx="46" cy="54" r="10" fill="#8B2635"/><path d="M20 38 Q33 8 46 44" stroke="#3A5C3A" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
 </div>
 
@@ -122,10 +162,10 @@ body {
   <p class="main-subtitle">наши маленькие большие встречи</p>
   <div class="divider-ornament">— ✦ —</div>
   <div class="avatars-row">
-    <div class="av" style="background:#F5DDE0;font-size:20px;">🧑‍🦲</div>
-    <div class="av" style="background:#E2EDD8;font-size:20px;">👱‍♀️</div>
-    <div class="av" style="background:#EDE8F5;font-size:20px;">👱‍♀️</div>
-    <div class="av" style="background:#F7EDD0;font-size:20px;">👩‍🦳</div>
+    <div class="av" style="background:#F5DDE0;">🧑‍🦲</div>
+    <div class="av" style="background:#E2EDD8;">👱‍♀️</div>
+    <div class="av" style="background:#EDE8F5;">👱‍♀️</div>
+    <div class="av" style="background:#F7EDD0;">👩‍🦳</div>
   </div>
   <div id="yearsGrid" class="years-grid"><div class="loading">загружаю воспоминания...</div></div>
   <button class="add-entry-btn" onclick="showScreen('form')">+ добавить воспоминание</button>
@@ -133,9 +173,9 @@ body {
 
 <!-- YEAR -->
 <div id="screen-year" class="screen">
-  <div class="year-header">
+  <div class="top-bar">
     <button class="back-btn" onclick="showScreen('main')">←</button>
-    <div class="year-header-title" id="yearHeaderTitle"></div>
+    <div class="top-bar-title" id="yearHeaderTitle"></div>
   </div>
   <div class="filter-bar" id="yearFilterBar"></div>
   <div class="albums-list" id="albumsList"></div>
@@ -143,7 +183,7 @@ body {
 
 <!-- ALBUM -->
 <div id="screen-album" class="screen">
-  <div class="album-header">
+  <div class="top-bar">
     <button class="back-btn" id="albumBackBtn">←</button>
     <div style="flex:1">
       <div style="font-family:var(--serif);font-size:18px;color:var(--cherry);font-style:italic;" id="albumHeaderTitle"></div>
@@ -153,13 +193,14 @@ body {
   <div class="album-content" id="albumContent"></div>
 </div>
 
-<!-- FORM -->
+<!-- FORM (add / edit) -->
 <div id="screen-form" class="screen">
-  <div class="form-header">
+  <div class="top-bar">
     <button class="back-btn" onclick="showScreen('main')">←</button>
-    <div style="font-family:var(--serif);font-size:18px;color:var(--cherry);font-style:italic;">новое воспоминание</div>
+    <div class="top-bar-title" id="formTitle">новое воспоминание</div>
   </div>
   <div class="form-body">
+    <input type="hidden" id="f-id">
     <div class="form-group">
       <label class="form-label">название встречи</label>
       <input class="form-input" id="f-title" placeholder="пикник у реки, кино в пятницу...">
@@ -190,122 +231,110 @@ body {
     </div>
     <div class="form-group">
       <label class="form-label">фотографии</label>
-      <div class="photos-note">📸 Загрузи фото в Google Диск, открой доступ «всем по ссылке», скопируй прямую ссылку. Несколько ссылок — через запятую. До 6 фото на запись.</div>
-      <textarea class="form-textarea" id="f-photos" placeholder="ссылка1, ссылка2..." style="margin-top:6px;min-height:60px;"></textarea>
+      <div class="photos-note">📸 Каждую ссылку на фото с Google Диска — на отдельной строке. Ссылка должна быть вида: drive.google.com/file/d/.../view</div>
+      <textarea class="form-textarea" id="f-photos" placeholder="https://drive.google.com/file/d/ХХХ/view&#10;https://drive.google.com/file/d/ХХХ/view&#10;..." style="margin-top:6px;min-height:100px;font-size:13px;"></textarea>
     </div>
     <button class="submit-btn" id="submitBtn" onclick="submitEntry()">сохранить воспоминание 🍒</button>
   </div>
 </div>
 
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">×</button>
+  <button class="lightbox-nav lightbox-prev" onclick="event.stopPropagation();lightboxNav(-1)">‹</button>
+  <img id="lightboxImg" src="" alt="">
+  <button class="lightbox-nav lightbox-next" onclick="event.stopPropagation();lightboxNav(1)">›</button>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbzlFwQAQMOLzou4kgOafOZmBtkrCoLCBhclgRcme4oT_OARdRS5bgGVurNkYUop-jYBuA/exec';
-const TAG_COLORS = [
-  {bg:'#F5DDE0',color:'#8B2635'},{bg:'#E2EDD8',color:'#3A5C3A'},
-  {bg:'#EDE8F5',color:'#5B4A8A'},{bg:'#F7EDD0',color:'#8A6020'},
-  {bg:'#D6EAF0',color:'#1A5C78'},{bg:'#F0EAD6',color:'#6B4C1E'},
-];
-const PRESET_TAGS = ['природа','город','праздник','день рождения','кино','кафе','путешествие','дома','лето','зима','весна','осень'];
-const MONTHS = ['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
-const MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const API='https://script.google.com/macros/s/AKfycbzlFwQAQMOLzou4kgOafOZmBtkrCoLCBhclgRcme4oT_OARdRS5bgGVurNkYUop-jYBuA/exec';
+const TAG_COLORS=[{bg:'#F5DDE0',color:'#8B2635'},{bg:'#E2EDD8',color:'#3A5C3A'},{bg:'#EDE8F5',color:'#5B4A8A'},{bg:'#F7EDD0',color:'#8A6020'},{bg:'#D6EAF0',color:'#1A5C78'},{bg:'#F0EAD6',color:'#6B4C1E'}];
+const PRESET_TAGS=['природа','город','праздник','день рождения','кино','кафе','путешествие','дома','лето','зима','весна','осень'];
+const MONTHS=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+const MONTHS_GEN=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 
-let entries = [];
-let currentYear = null;
-let currentEntryId = null;
-let activeFilter = null;
-let selectedTags = [];
+let entries=[],currentYear=null,currentEntryId=null,activeFilter=null,selectedTags=[];
+let lightboxPhotos=[],lightboxIdx=0;
 
-function getTagColor(s) {
-  let h = 0;
-  for (let c of (s||'x')) h = (h * 31 + c.charCodeAt(0)) % TAG_COLORS.length;
-  return TAG_COLORS[Math.abs(h)];
+function getTagColor(s){let h=0;for(let c of(s||'x'))h=(h*31+c.charCodeAt(0))%TAG_COLORS.length;return TAG_COLORS[Math.abs(h)];}
+function formatDate(d){if(!d)return'';const dt=new Date(String(d).includes('T')?d:d+'T12:00:00');if(isNaN(dt))return String(d);return dt.getDate()+' '+MONTHS_GEN[dt.getMonth()]+' '+dt.getFullYear();}
+function getYear(d){if(!d)return'unknown';const dt=new Date(String(d).includes('T')?d:d+'T12:00:00');return isNaN(dt)?'unknown':dt.getFullYear();}
+function getMonth(d){if(!d)return 0;const dt=new Date(String(d).includes('T')?d:d+'T12:00:00');return isNaN(dt)?0:dt.getMonth();}
+function plural(n,a,b,c){if(n%10===1&&n%100!==11)return a;if([2,3,4].includes(n%10)&&![12,13,14].includes(n%100))return b;return c;}
+
+// Convert Google Drive share link to direct image URL
+function driveToImg(url){
+  if(!url)return'';
+  url=url.trim();
+  // already direct
+  if(url.includes('drive.google.com/uc'))return url;
+  // file/d/ID/view
+  const m=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if(m)return'https://drive.google.com/uc?export=view&id='+m[1];
+  return url;
 }
 
-function formatDate(d) {
-  if (!d) return '';
-  const dt = new Date(String(d).includes('T') ? d : d + 'T12:00:00');
-  if (isNaN(dt)) return String(d);
-  return dt.getDate() + ' ' + MONTHS_GEN[dt.getMonth()] + ' ' + dt.getFullYear();
+function parsePhotos(raw){
+  if(!raw)return[];
+  if(Array.isArray(raw))return raw.map(driveToImg).filter(Boolean);
+  // newline or comma separated
+  return raw.split(/[\n,]+/).map(s=>driveToImg(s.trim())).filter(Boolean);
 }
 
-function getYear(d) { if (!d) return 'unknown'; const dt = new Date(String(d).includes('T') ? d : d + 'T12:00:00'); return isNaN(dt) ? 'unknown' : dt.getFullYear(); }
-function getMonth(d) { if (!d) return 0; const dt = new Date(String(d).includes('T') ? d : d + 'T12:00:00'); return isNaN(dt) ? 0 : dt.getMonth(); }
-function plural(n,a,b,c) {
-  if (n%10===1&&n%100!==11) return a;
-  if ([2,3,4].includes(n%10)&&![12,13,14].includes(n%100)) return b;
-  return c;
-}
-
-async function loadEntries() {
-  try {
-    const r = await fetch(API + '?action=getAll');
-    const data = await r.json();
-    if (data.ok) entries = data.entries || [];
-  } catch(e) {
-    showToast('не удалось загрузить данные', true);
-  }
+async function loadEntries(){
+  try{
+    const r=await fetch(API+'?action=getAll');
+    const data=await r.json();
+    if(data.ok)entries=(data.entries||[]).map(e=>({...e,photos:parsePhotos(e.photos)}));
+  }catch(e){showToast('не удалось загрузить данные',true);}
   renderMain();
 }
 
-async function apiPost(body) {
-  const r = await fetch(API, {
-    method: 'POST',
-    body: JSON.stringify(body),
-  });
+async function apiPost(body){
+  const r=await fetch(API,{method:'POST',body:JSON.stringify(body)});
   return r.json();
 }
 
-function showScreen(name, extra) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + name).classList.add('active');
+function showScreen(name,extra){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
   window.scrollTo(0,0);
-  if (name === 'main') renderMain();
-  if (name === 'year') renderYear(extra);
-  if (name === 'album') renderAlbum(extra);
-  if (name === 'form') renderForm();
+  if(name==='main')renderMain();
+  if(name==='year')renderYear(extra);
+  if(name==='album')renderAlbum(extra);
+  if(name==='form')renderForm(extra);
 }
 
-function renderMain() {
-  const years = {};
-  entries.forEach(e => {
-    const y = getYear(e.date);
-    years[y] = (years[y]||0) + 1;
-  });
-  const sorted = Object.keys(years).filter(y => y !== 'unknown').sort((a,b) => b-a);
-  const grid = document.getElementById('yearsGrid');
-  if (!sorted.length) {
-    grid.innerHTML = '<div style="color:var(--ink-light);font-family:var(--serif);font-style:italic;font-size:14px;width:100%;text-align:center;">пока пусто — добавь первое воспоминание 🍒</div>';
-    return;
-  }
-  grid.innerHTML = sorted.map(y => `
-    <div class="year-card" onclick="showScreen('year','${y}')">
-      <div class="year-num">${y}</div>
-      <div class="year-count">${years[y]} ${plural(years[y],'воспоминание','воспоминания','воспоминаний')}</div>
-    </div>`).join('');
+function renderMain(){
+  const years={};
+  entries.forEach(e=>{const y=getYear(e.date);if(y!=='unknown')years[y]=(years[y]||0)+1;});
+  const sorted=Object.keys(years).sort((a,b)=>b-a);
+  const grid=document.getElementById('yearsGrid');
+  if(!sorted.length){grid.innerHTML='<div style="color:var(--ink-light);font-family:var(--serif);font-style:italic;font-size:14px;width:100%;text-align:center;">пока пусто — добавь первое воспоминание 🍒</div>';return;}
+  grid.innerHTML=sorted.map(y=>`<div class="year-card" onclick="showScreen('year','${y}')"><div class="year-num">${y}</div><div class="year-count">${years[y]} ${plural(years[y],'воспоминание','воспоминания','воспоминаний')}</div></div>`).join('');
 }
 
-function renderYear(year) {
-  currentYear = year;
-  document.getElementById('yearHeaderTitle').textContent = year + ' год';
-  const yearEntries = entries
-    .filter(e => getYear(e.date) == year)
-    .sort((a,b) => new Date(b.date)-new Date(a.date));
-  const allTags = [...new Set(yearEntries.flatMap(e => e.tags||[]))];
-  const filterBar = document.getElementById('yearFilterBar');
-  filterBar.innerHTML = ['все',...allTags].map(t => `
-    <button class="filter-tag ${(activeFilter===t||(activeFilter===null&&t==='все'))?'active':''}"
-      onclick="setFilter('${t}','${year}')">${t}</button>`).join('');
-  const filtered = activeFilter ? yearEntries.filter(e=>(e.tags||[]).includes(activeFilter)) : yearEntries;
-  const list = document.getElementById('albumsList');
-  if (!filtered.length) { list.innerHTML='<div class="empty-state">ничего не найдено</div>'; return; }
-  let html='', lastMonth=-1;
-  filtered.forEach(e => {
-    const m = getMonth(e.date);
-    if (m!==lastMonth) { html+=`<div class="month-sep">${MONTHS[m]}</div>`; lastMonth=m; }
-    const tc = getTagColor(e.emoji||e.title);
+function renderYear(year){
+  currentYear=year;
+  document.getElementById('yearHeaderTitle').textContent=year+' год';
+  const yearEntries=entries.filter(e=>getYear(e.date)==year).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const allTags=[...new Set(yearEntries.flatMap(e=>e.tags||[]))];
+  document.getElementById('yearFilterBar').innerHTML=['все',...allTags].map(t=>`<button class="filter-tag ${(activeFilter===t||(activeFilter===null&&t==='все'))?'active':''}" onclick="setFilter('${t}','${year}')">${t}</button>`).join('');
+  const filtered=activeFilter?yearEntries.filter(e=>(e.tags||[]).includes(activeFilter)):yearEntries;
+  const list=document.getElementById('albumsList');
+  if(!filtered.length){list.innerHTML='<div class="empty-state">ничего не найдено</div>';return;}
+  let html='',lastMonth=-1;
+  filtered.forEach(e=>{
+    const m=getMonth(e.date);
+    if(m!==lastMonth){html+=`<div class="month-sep">${MONTHS[m]}</div>`;lastMonth=m;}
+    const tc=getTagColor(e.emoji||e.title);
+    const thumbHtml=(e.photos&&e.photos.length)
+      ?`<img src="${e.photos[0]}" onerror="this.parentNode.innerHTML='${e.emoji||'📸'}'" alt="">`
+      :(e.emoji||'📸');
     html+=`<div class="album-card" onclick="showScreen('album',${e.id})">
-      <div class="album-thumb" style="background:${tc.bg};">${e.emoji||'📸'}</div>
+      <div class="album-thumb" style="background:${tc.bg};">${thumbHtml}</div>
       <div class="album-info">
         <div class="album-title">${e.title}</div>
         <div class="album-date">${formatDate(e.date)}</div>
@@ -314,32 +343,26 @@ function renderYear(year) {
       <span class="album-arrow">›</span>
     </div>`;
   });
-  list.innerHTML = html;
+  list.innerHTML=html;
 }
 
-function setFilter(tag, year) {
-  activeFilter = tag==='все' ? null : tag;
-  renderYear(year);
-}
+function setFilter(tag,year){activeFilter=tag==='все'?null:tag;renderYear(year);}
 
-function renderAlbum(id) {
-  const entry = entries.find(e=>e.id==id);
-  if (!entry) return;
-  currentEntryId = id;
-  document.getElementById('albumHeaderTitle').textContent = entry.title;
-  document.getElementById('albumHeaderDate').textContent = formatDate(entry.date);
-  const backYear = getYear(entry.date);
-  document.getElementById('albumBackBtn').onclick = () => showScreen('year', backYear);
+function renderAlbum(id){
+  const entry=entries.find(e=>e.id==id);
+  if(!entry)return;
+  currentEntryId=id;
+  document.getElementById('albumHeaderTitle').textContent=entry.title;
+  document.getElementById('albumHeaderDate').textContent=formatDate(entry.date);
+  document.getElementById('albumBackBtn').onclick=()=>showScreen('year',getYear(entry.date));
   let html='';
-  if (entry.desc) html+=`<div class="album-desc">${entry.desc}</div>`;
-  const photos = entry.photos||[];
-  if (photos.length) {
-    html+=`<div class="fan-wrap">`;
-    const angles=[-18,-9,0,8,16,22];
-    const offsets=[-55,-28,0,28,54,72];
-    photos.slice(0,6).forEach((p,i)=>{
-      html+=`<div class="fan-photo" style="transform:rotate(${angles[i]||0}deg) translateX(${offsets[i]||0}px);z-index:${6-i};">
-        <img src="${p}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentNode.innerHTML='📸'" alt="">
+  if(entry.desc)html+=`<div class="album-desc">${entry.desc}</div>`;
+  const photos=entry.photos||[];
+  if(photos.length){
+    html+=`<div class="photo-grid" id="photoGrid">`;
+    photos.forEach((p,i)=>{
+      html+=`<div class="photo-grid-item" onclick="openLightbox(${i})">
+        <img src="${p}" onerror="this.parentNode.style.display='none'" alt="">
       </div>`;
     });
     html+=`</div>`;
@@ -349,88 +372,124 @@ function renderAlbum(id) {
       <div style="font-family:var(--serif);font-style:italic;font-size:13px;color:var(--ink-light);">фотографии ещё не добавлены</div>
     </div>`;
   }
-  if (entry.videoUrl) {
-    const ytId = (entry.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([A-Za-z0-9_-]{11})/)||[])[1];
-    if (ytId) html+=`<div class="video-block"><iframe src="https://www.youtube.com/embed/${ytId}?rel=0" allow="autoplay;encrypted-media" allowfullscreen></iframe></div>`;
+  if(entry.videoUrl){
+    const ytId=(entry.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([A-Za-z0-9_-]{11})/)||[])[1];
+    if(ytId)html+=`<div class="video-block"><iframe src="https://www.youtube.com/embed/${ytId}?rel=0" allow="autoplay;encrypted-media" allowfullscreen></iframe></div>`;
   }
-  if ((entry.tags||[]).length) {
-    html+=`<div class="tags-row">${entry.tags.map(t=>{const c=getTagColor(t);return`<span class="tag-big" style="background:${c.bg};color:${c.color};">${t}</span>`;}).join('')}</div>`;
-  }
-  html+=`<button onclick="deleteEntry(${id})" style="width:100%;padding:10px;border:1px solid rgba(139,38,53,0.2);border-radius:10px;background:transparent;color:var(--cherry);font-family:var(--sans);font-size:13px;cursor:pointer;margin-top:1rem;">удалить запись</button>`;
-  document.getElementById('albumContent').innerHTML = html;
+  if((entry.tags||[]).length)html+=`<div class="tags-row">${entry.tags.map(t=>{const c=getTagColor(t);return`<span class="tag-big" style="background:${c.bg};color:${c.color};">${t}</span>`;}).join('')}</div>`;
+  html+=`<div class="action-btns">
+    <button class="btn-outline" onclick="showScreen('form',${id})">✏️ редактировать</button>
+    <button class="btn-outline" onclick="deleteEntry(${id})">🗑 удалить</button>
+  </div>`;
+  document.getElementById('albumContent').innerHTML=html;
+  lightboxPhotos=photos;
 }
 
-async function deleteEntry(id) {
-  if (!confirm('Удалить это воспоминание?')) return;
-  try {
-    await apiPost({action:'delete', id});
-    entries = entries.filter(e=>e.id!=id);
-    showToast('запись удалена');
-    showScreen('year', currentYear);
-  } catch(e) { showToast('ошибка при удалении', true); }
+function openLightbox(idx){
+  lightboxIdx=idx;
+  document.getElementById('lightboxImg').src=lightboxPhotos[idx];
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('open');}
+function lightboxNav(dir){
+  lightboxIdx=(lightboxIdx+dir+lightboxPhotos.length)%lightboxPhotos.length;
+  document.getElementById('lightboxImg').src=lightboxPhotos[lightboxIdx];
 }
 
-function renderForm() {
+async function deleteEntry(id){
+  if(!confirm('Удалить это воспоминание?'))return;
+  try{await apiPost({action:'delete',id});entries=entries.filter(e=>e.id!=id);showToast('запись удалена');showScreen('year',currentYear);}
+  catch(e){showToast('ошибка при удалении',true);}
+}
+
+function renderForm(editId){
   selectedTags=[];
-  ['f-title','f-desc','f-emoji','f-video','f-photos','f-newtag'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
-  document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
-  document.getElementById('tagsRow').innerHTML = PRESET_TAGS.map(t=>`<button class="tag-pill" onclick="toggleTag('${t}',this)">${t}</button>`).join('');
-  const btn = document.getElementById('submitBtn');
-  btn.disabled=false; btn.textContent='сохранить воспоминание 🍒';
+  document.getElementById('f-id').value=editId||'';
+  document.getElementById('formTitle').textContent=editId?'редактировать':'новое воспоминание';
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=false;btn.textContent=editId?'сохранить изменения 🍒':'сохранить воспоминание 🍒';
+  if(editId){
+    const e=entries.find(x=>x.id==editId);
+    if(e){
+      document.getElementById('f-title').value=e.title||'';
+      document.getElementById('f-date').value=e.date||'';
+      document.getElementById('f-desc').value=e.desc||'';
+      document.getElementById('f-emoji').value=e.emoji||'';
+      document.getElementById('f-video').value=e.videoUrl||'';
+      // show original links (stored as converted, show as-is)
+      document.getElementById('f-photos').value=(e.photos||[]).join('\n');
+      selectedTags=[...(e.tags||[])];
+    }
+  } else {
+    ['f-title','f-desc','f-emoji','f-video','f-photos','f-newtag'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+  }
+  const row=document.getElementById('tagsRow');
+  row.innerHTML=PRESET_TAGS.map(t=>`<button class="tag-pill ${selectedTags.includes(t)?'selected':''}" onclick="toggleTag('${t}',this)">${t}</button>`).join('');
+  // add any custom tags not in presets
+  selectedTags.filter(t=>!PRESET_TAGS.includes(t)).forEach(t=>{
+    const btn=document.createElement('button');
+    btn.className='tag-pill selected';btn.textContent=t;
+    btn.onclick=()=>toggleTag(t,btn);row.appendChild(btn);
+  });
 }
 
-function toggleTag(tag,btn) {
-  if (selectedTags.includes(tag)) { selectedTags=selectedTags.filter(t=>t!==tag); btn.classList.remove('selected'); }
-  else { selectedTags.push(tag); btn.classList.add('selected'); }
+function toggleTag(tag,btn){
+  if(selectedTags.includes(tag)){selectedTags=selectedTags.filter(t=>t!==tag);btn.classList.remove('selected');}
+  else{selectedTags.push(tag);btn.classList.add('selected');}
 }
 
-function addCustomTag() {
+function addCustomTag(){
   const inp=document.getElementById('f-newtag');
   const val=inp.value.trim();
-  if (!val) return;
-  if (!selectedTags.includes(val)) {
+  if(!val)return;
+  if(!selectedTags.includes(val)){
     selectedTags.push(val);
     const row=document.getElementById('tagsRow');
     const btn=document.createElement('button');
-    btn.className='tag-pill selected'; btn.textContent=val;
-    btn.onclick=()=>toggleTag(val,btn); row.appendChild(btn);
+    btn.className='tag-pill selected';btn.textContent=val;
+    btn.onclick=()=>toggleTag(val,btn);row.appendChild(btn);
   }
   inp.value='';
 }
 
-async function submitEntry() {
+async function submitEntry(){
   const title=document.getElementById('f-title').value.trim();
   const date=document.getElementById('f-date').value;
-  if (!title) { showToast('введи название встречи', true); return; }
-  if (!date) { showToast('выбери дату', true); return; }
-  const photosRaw=document.getElementById('f-photos').value.trim();
-  const photos=photosRaw?photosRaw.split(',').map(s=>s.trim()).filter(Boolean):[];
+  if(!title){showToast('введи название встречи',true);return;}
+  if(!date){showToast('выбери дату',true);return;}
+  const photosRaw=document.getElementById('f-photos').value;
+  const photos=parsePhotos(photosRaw);
+  const editId=document.getElementById('f-id').value;
   const entry={
-    id: Date.now(), title, date,
-    desc: document.getElementById('f-desc').value.trim(),
-    tags: [...selectedTags],
-    emoji: document.getElementById('f-emoji').value.trim()||'📸',
+    id:editId?Number(editId):Date.now(),
+    title,date,
+    desc:document.getElementById('f-desc').value.trim(),
+    tags:[...selectedTags],
+    emoji:document.getElementById('f-emoji').value.trim()||'📸',
     photos,
-    videoUrl: document.getElementById('f-video').value.trim(),
+    videoUrl:document.getElementById('f-video').value.trim(),
   };
   const btn=document.getElementById('submitBtn');
-  btn.disabled=true; btn.textContent='сохраняю...';
-  try {
-    await apiPost({action:'add', entry});
+  btn.disabled=true;btn.textContent='сохраняю...';
+  try{
+    if(editId){
+      await apiPost({action:'delete',id:editId});
+      await apiPost({action:'add',entry});
+      entries=entries.filter(e=>e.id!=editId);
+    } else {
+      await apiPost({action:'add',entry});
+    }
     entries.push(entry);
     entries.sort((a,b)=>new Date(b.date)-new Date(a.date));
-    showToast('воспоминание сохранено 🍒');
+    showToast('сохранено 🍒');
     setTimeout(()=>showScreen('main'),1200);
-  } catch(e) {
-    showToast('ошибка при сохранении', true);
-    btn.disabled=false; btn.textContent='сохранить воспоминание 🍒';
-  }
+  }catch(e){showToast('ошибка при сохранении',true);btn.disabled=false;btn.textContent='сохранить 🍒';}
 }
 
-function showToast(msg, isError=false) {
+function showToast(msg,isError=false){
   const t=document.getElementById('toast');
-  t.textContent=msg;
-  t.className='toast show' + (isError?' error':'');
+  t.textContent=msg;t.className='toast show'+(isError?' error':'');
   setTimeout(()=>t.classList.remove('show'),2800);
 }
 
