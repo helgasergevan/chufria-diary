@@ -243,8 +243,12 @@ body{background:var(--cream);font-family:var(--sans);color:var(--ink);min-height
     </div>
     <div class="form-group">
       <label class="form-label">фотографии</label>
-      <div class="photos-note">📸 Каждую ссылку на фото с Google Диска — на отдельной строке. Ссылка должна быть вида: drive.google.com/file/d/.../view</div>
-      <textarea class="form-textarea" id="f-photos" placeholder="https://drive.google.com/file/d/ХХХ/view&#10;https://drive.google.com/file/d/ХХХ/view&#10;..." style="margin-top:6px;min-height:100px;font-size:13px;"></textarea>
+      <input type="file" id="f-photo-input" accept="image/*" multiple style="display:none;" onchange="handlePhotoSelect(event)">
+      <button type="button" onclick="document.getElementById('f-photo-input').click()" style="width:100%;padding:14px;border:1.5px dashed rgba(139,38,53,0.3);border-radius:10px;background:var(--gold-pale);color:var(--cherry);font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;">
+        📷 выбрать фото из галереи
+      </button>
+      <div id="photo-preview" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
+      <div id="photo-upload-status" style="font-size:12px;color:var(--ink-light);margin-top:6px;font-style:italic;min-height:18px;"></div>
     </div>
     <button class="submit-btn" id="submitBtn" onclick="submitEntry()">сохранить воспоминание 🍒</button>
   </div>
@@ -261,7 +265,7 @@ body{background:var(--cream);font-family:var(--sans);color:var(--ink);min-height
 <div class="toast" id="toast"></div>
 
 <script>
-const API='https://script.google.com/macros/s/AKfycbwMHG7qKveAlqCi6oicH3qZhAJL_xuzClrXtHk0f4LTWYdGv0EzWsRHXsvswezI0xN6Qw/exec';
+const API='https://script.google.com/macros/s/AKfycbxErkUnuuxW--c0-ItokX-WVx5EPZu1FWNiVYRe65uZyzyNXoqXxkm0BbtuMesw_gRg3w/exec';
 const ADMIN_PASSWORD='0000';
 let isAdmin=false;
 
@@ -444,6 +448,11 @@ async function deleteEntry(id){
 
 function renderForm(editId){
   selectedTags=[];
+  uploadedPhotoUrls=[];
+  const prevEl=document.getElementById('photo-preview');
+  if(prevEl)prevEl.innerHTML='';
+  const statEl=document.getElementById('photo-upload-status');
+  if(statEl)statEl.textContent='';
   document.getElementById('f-id').value=editId||'';
   document.getElementById('formTitle').textContent=editId?'редактировать':'новое воспоминание';
   const btn=document.getElementById('submitBtn');
@@ -457,8 +466,10 @@ function renderForm(editId){
       
       document.getElementById('f-video').value=e.videoUrl||'';
       document.getElementById('f-jokes').value=(e.jokes||[]).join('\n');
-      // show original links (stored as converted, show as-is)
-      document.getElementById('f-photos').value=(e.photos||[]).join('\n');
+      // show existing photos in preview
+      uploadedPhotoUrls=[...(e.photos||[])];
+      const prev=document.getElementById('photo-preview');
+      if(prev){prev.innerHTML='';uploadedPhotoUrls.forEach(url=>{const img=document.createElement('img');img.src=url;img.style.cssText='width:70px;height:70px;object-fit:cover;border-radius:8px;border:2px solid var(--green-mid);';prev.appendChild(img);});}
       selectedTags=[...(e.tags||[])];
     }
   } else {
@@ -494,13 +505,54 @@ function addCustomTag(){
   inp.value='';
 }
 
+let uploadedPhotoUrls = [];
+
+function handlePhotoSelect(event) {
+  const files = Array.from(event.target.files);
+  if (!files.length) return;
+  const preview = document.getElementById('photo-preview');
+  const status = document.getElementById('photo-upload-status');
+  status.textContent = `загружаю ${files.length} фото...`;
+  let uploaded = 0;
+  files.forEach(file => {
+    const reader = new FileReader();
+    // Show preview immediately
+    const img = document.createElement('img');
+    img.style.cssText = 'width:70px;height:70px;object-fit:cover;border-radius:8px;border:2px solid var(--cherry-pale);';
+    img.style.opacity = '0.5';
+    preview.appendChild(img);
+    reader.onload = async function(e) {
+      img.src = e.target.result;
+      // Convert to base64 and upload
+      const base64 = e.target.result.split(',')[1];
+      try {
+        const resp = await apiPost({action:'uploadPhoto', fileData: base64, fileName: file.name});
+        if (resp.ok) {
+          uploadedPhotoUrls.push(resp.url);
+          img.style.opacity = '1';
+          img.style.border = '2px solid var(--green-mid)';
+          uploaded++;
+          status.textContent = `загружено ${uploaded} из ${files.length}`;
+          if (uploaded === files.length) status.textContent = `✅ все фото загружены (${uploaded} шт.)`;
+        } else {
+          img.style.border = '2px solid var(--cherry)';
+          status.textContent = 'ошибка при загрузке одного из фото';
+        }
+      } catch(err) {
+        img.style.border = '2px solid var(--cherry)';
+        status.textContent = 'ошибка соединения';
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 async function submitEntry(){
   const title=document.getElementById('f-title').value.trim();
   const date=document.getElementById('f-date').value;
   if(!title){showToast('введи название встречи',true);return;}
   if(!date){showToast('выбери дату',true);return;}
-  const photosRaw=document.getElementById('f-photos').value;
-  const photos=parsePhotos(photosRaw);
+  const photos = uploadedPhotoUrls.length ? uploadedPhotoUrls : [];
   const editId=document.getElementById('f-id').value;
   const jokesRaw=document.getElementById('f-jokes').value;
   const jokes=jokesRaw.split('\n').map(s=>s.trim()).filter(Boolean);
