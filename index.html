@@ -117,6 +117,24 @@ body{background:var(--cream);font-family:var(--sans);color:var(--ink);min-height
 .joke-add-btn{background:var(--cherry);color:white;border:none;border-radius:8px;padding:0 14px;cursor:pointer;font-size:18px;font-weight:600;}
 .joke-del-btn{background:none;border:none;cursor:pointer;color:var(--ink-light);font-size:16px;padding:0 2px;line-height:1;flex-shrink:0;}
 .joke-del-btn:hover{color:var(--cherry);}
+.comments-block{margin-bottom:1.5rem;}
+.comments-title{font-family:var(--serif);font-size:14px;color:var(--cherry);font-weight:600;margin-bottom:.75rem;display:flex;align-items:center;gap:6px;}
+.comment-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:.5px solid rgba(139,38,53,.08);}
+.comment-item:last-child{border-bottom:none;}
+.comment-avatar{width:28px;height:28px;border-radius:50%;background:var(--cherry-pale);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--cherry);flex-shrink:0;}
+.comment-body{flex:1;}
+.comment-author{font-size:12px;font-weight:700;color:var(--cherry);margin-bottom:2px;}
+.comment-text{font-size:13px;color:var(--ink-mid);line-height:1.5;}
+.comment-time{font-size:11px;color:var(--ink-light);margin-top:2px;}
+.comment-del{background:none;border:none;cursor:pointer;color:var(--ink-light);font-size:13px;padding:0 2px;flex-shrink:0;}
+.comment-del:hover{color:var(--cherry);}
+.comment-form{background:var(--cream-dark);border-radius:12px;padding:.875rem 1rem;margin-top:.75rem;}
+.comment-name-row{display:flex;gap:6px;margin-bottom:8px;}
+.comment-select{flex:1;padding:7px 10px;border:1px solid rgba(139,38,53,.2);border-radius:8px;background:white;font-family:var(--sans);font-size:13px;color:var(--ink);outline:none;-webkit-appearance:none;}
+.comment-input-row{display:flex;gap:6px;}
+.comment-text-input{flex:1;padding:8px 12px;border:1px solid rgba(139,38,53,.2);border-radius:8px;background:white;font-family:var(--sans);font-size:13px;color:var(--ink);outline:none;}
+.comment-text-input:focus{border-color:var(--cherry-light);}
+.comment-send-btn{background:var(--cherry);color:white;border:none;border-radius:8px;padding:0 14px;cursor:pointer;font-size:16px;flex-shrink:0;}
 .action-btns{display:flex;gap:8px;margin-top:.5rem;}
 .btn-outline{flex:1;padding:10px;border:1px solid rgba(139,38,53,.2);border-radius:10px;
   background:transparent;color:var(--cherry);font-family:var(--sans);font-size:13px;
@@ -265,7 +283,7 @@ body{background:var(--cream);font-family:var(--sans);color:var(--ink);min-height
 <div class="toast" id="toast"></div>
 
 <script>
-const API='https://script.google.com/macros/s/AKfycbxErkUnuuxW--c0-ItokX-WVx5EPZu1FWNiVYRe65uZyzyNXoqXxkm0BbtuMesw_gRg3w/exec';
+const API='https://script.google.com/macros/s/AKfycbww4oQtHEIeugumPlFnwMdyL_xD9F03O8esFoSgFOFTeeqc738K13dJCZq--dEoLH_GMQ/exec';
 const TG_BOT='8658211560:AAER7jDAh9s33kVsE-6f5L5TLnJGN6EriP0';
 const TG_CHANNEL='-1004350961201';
 
@@ -312,11 +330,18 @@ function parseJokes(raw){
   return String(raw).split('\n').map(s=>s.trim()).filter(Boolean);
 }
 
+function parseComments(raw){
+  if(!raw||raw===''||raw==='[]')return[];
+  if(Array.isArray(raw))return raw;
+  try{const p=JSON.parse(raw);if(Array.isArray(p))return p;}catch(e){}
+  return[];
+}
+
 async function loadEntries(){
   try{
     const r=await fetch(API+'?action=getAll');
     const data=await r.json();
-    if(data.ok)entries=(data.entries||[]).map(e=>({...e,photos:parsePhotos(e.photos),jokes:parseJokes(e.jokes)}));
+    if(data.ok)entries=(data.entries||[]).map(e=>({...e,photos:parsePhotos(e.photos),jokes:parseJokes(e.jokes),comments:parseComments(e.comments)}));
   }catch(e){showToast('не удалось загрузить данные',true);}
   renderMain();
 }
@@ -414,6 +439,40 @@ function renderAlbum(id){
     if(ytId)html+=`<div class="video-block"><iframe src="https://www.youtube.com/embed/${ytId}?rel=0" allow="autoplay;encrypted-media" allowfullscreen></iframe></div>`;
   }
   if((entry.tags||[]).length)html+=`<div class="tags-row">${entry.tags.map(t=>{const c=getTagColor(t);return`<span class="tag-big" style="background:${c.bg};color:${c.color};">${t}</span>`;}).join('')}</div>`;
+  // Comments
+  const comments = entry.comments||[];
+  const savedName = localStorage.getItem('chufria_name')||'';
+  html+=`<div class="comments-block">
+    <div class="comments-title">💬 комментарии</div>
+    <div id="comments-list">
+      ${comments.length ? comments.map((c,i)=>`
+        <div class="comment-item" data-idx="${i}">
+          <div class="comment-avatar">${c.name.charAt(0)}</div>
+          <div class="comment-body">
+            <div class="comment-author">${c.name}</div>
+            <div class="comment-text">${c.text}</div>
+            <div class="comment-time">${c.time||''}</div>
+          </div>
+          <button class="comment-del" onclick="deleteComment(${id},${i})">✕</button>
+        </div>`).join('') : '<div style="font-size:13px;color:var(--ink-light);font-style:italic;padding:4px 0;">пока нет комментариев</div>'}
+    </div>
+    <div class="comment-form">
+      <div class="comment-name-row">
+        <select class="comment-select" id="comment-name" onchange="localStorage.setItem('chufria_name',this.value)">
+          <option value="">— выбери имя —</option>
+          <option value="Окси" ${savedName==='Окси'?'selected':''}>Окси</option>
+          <option value="Олька" ${savedName==='Олька'?'selected':''}>Олька</option>
+          <option value="Олеська" ${savedName==='Олеська'?'selected':''}>Олеська</option>
+          <option value="Алёнка" ${savedName==='Алёнка'?'selected':''}>Алёнка</option>
+        </select>
+      </div>
+      <div class="comment-input-row">
+        <input class="comment-text-input" id="comment-text" placeholder="написать комментарий..." onkeydown="if(event.key==='Enter')addComment(${id})">
+        <button class="comment-send-btn" onclick="addComment(${id})">→</button>
+      </div>
+    </div>
+  </div>`;
+
   html+=`<div class="action-btns">
     <button class="btn-outline" onclick="showScreen('form',${id})">✏️ редактировать</button>
     <button class="btn-outline" onclick="deleteEntry(${id})">🗑 удалить</button>
@@ -573,6 +632,7 @@ async function submitEntry(){
   const editId=document.getElementById('f-id').value;
   const jokesRaw=document.getElementById('f-jokes').value;
   const jokes=jokesRaw.split('\n').map(s=>s.trim()).filter(Boolean);
+  const existingEntry = editId ? entries.find(e=>e.id==editId) : null;
   const entry={
     id:editId?Number(editId):Date.now(),
     title,date,
@@ -581,6 +641,7 @@ async function submitEntry(){
     emoji:'📸',
     photos,
     jokes,
+    comments: existingEntry ? (existingEntry.comments||[]) : [],
     videoUrl:document.getElementById('f-video').value.trim(),
   };
   const btn=document.getElementById('submitBtn');
@@ -597,6 +658,37 @@ async function submitEntry(){
     showToast('сохранено 🍒');
     setTimeout(()=>showScreen('main'),1200);
   }catch(e){showToast('ошибка при сохранении',true);btn.disabled=false;btn.textContent='сохранить 🍒';}
+}
+
+async function addComment(entryId){
+  const name=document.getElementById('comment-name').value;
+  const text=document.getElementById('comment-text').value.trim();
+  if(!name){showToast('выбери своё имя',true);return;}
+  if(!text){showToast('напиши комментарий',true);return;}
+  const entry=entries.find(e=>e.id==entryId);
+  if(!entry)return;
+  const now=new Date();
+  const timeStr=now.getDate()+' '+['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'][now.getMonth()]+' '+now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
+  const comment={name,text,time:timeStr};
+  entry.comments=entry.comments||[];
+  entry.comments.push(comment);
+  try{
+    await apiPost({action:'update',entry});
+    document.getElementById('comment-text').value='';
+    renderAlbum(entryId);
+    showToast('комментарий добавлен 🍒');
+  }catch(e){showToast('ошибка при сохранении',true);}
+}
+
+async function deleteComment(entryId,idx){
+  const entry=entries.find(e=>e.id==entryId);
+  if(!entry)return;
+  entry.comments=entry.comments||[];
+  entry.comments.splice(idx,1);
+  try{
+    await apiPost({action:'update',entry});
+    renderAlbum(entryId);
+  }catch(e){showToast('ошибка при удалении',true);}
 }
 
 function showToast(msg,isError=false){
