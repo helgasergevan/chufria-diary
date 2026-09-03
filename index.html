@@ -283,9 +283,7 @@ body{background:var(--cream);font-family:var(--sans);color:var(--ink);min-height
 <div class="toast" id="toast"></div>
 
 <script>
-const API='https://script.google.com/macros/s/AKfycbww4oQtHEIeugumPlFnwMdyL_xD9F03O8esFoSgFOFTeeqc738K13dJCZq--dEoLH_GMQ/exec';
-const TG_BOT='8658211560:AAER7jDAh9s33kVsE-6f5L5TLnJGN6EriP0';
-const TG_CHANNEL='-1004350961201';
+const API='https://script.google.com/macros/s/AKfycbyaDZ6wwsafeJ920aM1AQ0P8ZYZjg-MqBj_0h3PGlQmXdcvyGyfSubmdWye6QQxiHz_rw/exec';
 
 const TAG_COLORS=[{bg:'#F5DDE0',color:'#8B2635'},{bg:'#E2EDD8',color:'#3A5C3A'},{bg:'#EDE8F5',color:'#5B4A8A'},{bg:'#F7EDD0',color:'#8A6020'},{bg:'#D6EAF0',color:'#1A5C78'},{bg:'#F0EAD6',color:'#6B4C1E'}];
 const PRESET_TAGS=['природа','город','праздник','день рождения','кино','кафе','путешествие','дома','лето','зима','весна','осень'];
@@ -560,26 +558,35 @@ function addCustomTag(){
 let uploadedPhotoUrls = [];
 
 async function uploadToTelegram(file) {
-  // 1. Send photo directly to Telegram from browser
-  const formData = new FormData();
-  formData.append('chat_id', TG_CHANNEL);
-  formData.append('photo', file);
-  const sendResp = await fetch(`https://api.telegram.org/bot${TG_BOT}/sendPhoto`, {
-    method: 'POST',
-    body: formData
+  // Compress image first
+  const compressed = await compressImage(file);
+  const base64 = compressed.split(',')[1];
+  const resp = await apiPost({action:'uploadPhoto', fileData: base64, fileName: file.name});
+  if (!resp.ok) throw new Error(resp.error || 'upload failed');
+  return resp.url;
+}
+
+function compressImage(file, quality=0.82) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        const maxDim = 1200;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+          else { w = Math.round(w * maxDim / h); h = maxDim; }
+        }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
   });
-  const sendData = await sendResp.json();
-  if (!sendData.ok) throw new Error(sendData.description);
-
-  // 2. Get file path
-  const photos = sendData.result.photo;
-  const fileId = photos[photos.length - 1].file_id;
-  const fileResp = await fetch(`https://api.telegram.org/bot${TG_BOT}/getFile?file_id=${fileId}`);
-  const fileData = await fileResp.json();
-  if (!fileData.ok) throw new Error('cannot get file path');
-
-  // 3. Return direct URL
-  return `https://api.telegram.org/file/bot${TG_BOT}/${fileData.result.file_path}`;
 }
 
 function handlePhotoSelect(event) {
