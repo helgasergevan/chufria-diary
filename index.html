@@ -266,6 +266,8 @@ body{background:var(--cream);font-family:var(--sans);color:var(--ink);min-height
 
 <script>
 const API='https://script.google.com/macros/s/AKfycbxErkUnuuxW--c0-ItokX-WVx5EPZu1FWNiVYRe65uZyzyNXoqXxkm0BbtuMesw_gRg3w/exec';
+const TG_BOT='8658211560:AAER7jDAh9s33kVsE-6f5L5TLnJGN6EriP0';
+const TG_CHANNEL='-1004350961201';
 
 const TAG_COLORS=[{bg:'#F5DDE0',color:'#8B2635'},{bg:'#E2EDD8',color:'#3A5C3A'},{bg:'#EDE8F5',color:'#5B4A8A'},{bg:'#F7EDD0',color:'#8A6020'},{bg:'#D6EAF0',color:'#1A5C78'},{bg:'#F0EAD6',color:'#6B4C1E'}];
 const PRESET_TAGS=['природа','город','праздник','день рождения','кино','кафе','путешествие','дома','лето','зима','весна','осень'];
@@ -498,6 +500,29 @@ function addCustomTag(){
 
 let uploadedPhotoUrls = [];
 
+async function uploadToTelegram(file) {
+  // 1. Send photo directly to Telegram from browser
+  const formData = new FormData();
+  formData.append('chat_id', TG_CHANNEL);
+  formData.append('photo', file);
+  const sendResp = await fetch(`https://api.telegram.org/bot${TG_BOT}/sendPhoto`, {
+    method: 'POST',
+    body: formData
+  });
+  const sendData = await sendResp.json();
+  if (!sendData.ok) throw new Error(sendData.description);
+
+  // 2. Get file path
+  const photos = sendData.result.photo;
+  const fileId = photos[photos.length - 1].file_id;
+  const fileResp = await fetch(`https://api.telegram.org/bot${TG_BOT}/getFile?file_id=${fileId}`);
+  const fileData = await fileResp.json();
+  if (!fileData.ok) throw new Error('cannot get file path');
+
+  // 3. Return direct URL
+  return `https://api.telegram.org/file/bot${TG_BOT}/${fileData.result.file_path}`;
+}
+
 function handlePhotoSelect(event) {
   const files = Array.from(event.target.files);
   if (!files.length) return;
@@ -505,36 +530,37 @@ function handlePhotoSelect(event) {
   const status = document.getElementById('photo-upload-status');
   status.textContent = `загружаю ${files.length} фото...`;
   let uploaded = 0;
+  let failed = 0;
+
   files.forEach(file => {
-    const reader = new FileReader();
-    // Show preview immediately
     const img = document.createElement('img');
-    img.style.cssText = 'width:70px;height:70px;object-fit:cover;border-radius:8px;border:2px solid var(--cherry-pale);';
-    img.style.opacity = '0.5';
+    img.style.cssText = 'width:70px;height:70px;object-fit:cover;border-radius:8px;border:2px solid var(--cherry-pale);opacity:0.5;';
     preview.appendChild(img);
-    reader.onload = async function(e) {
-      img.src = e.target.result;
-      // Convert to base64 and upload
-      const base64 = e.target.result.split(',')[1];
-      try {
-        const resp = await apiPost({action:'uploadPhoto', fileData: base64, fileName: file.name});
-        if (resp.ok) {
-          uploadedPhotoUrls.push(resp.url);
-          img.style.opacity = '1';
-          img.style.border = '2px solid var(--green-mid)';
-          uploaded++;
-          status.textContent = `загружено ${uploaded} из ${files.length}`;
-          if (uploaded === files.length) status.textContent = `✅ все фото загружены (${uploaded} шт.)`;
-        } else {
-          img.style.border = '2px solid var(--cherry)';
-          status.textContent = 'ошибка при загрузке одного из фото';
-        }
-      } catch(err) {
-        img.style.border = '2px solid var(--cherry)';
-        status.textContent = 'ошибка соединения';
+
+    // Show local preview immediately
+    const localUrl = URL.createObjectURL(file);
+    img.src = localUrl;
+
+    uploadToTelegram(file).then(url => {
+      uploadedPhotoUrls.push(url);
+      img.style.opacity = '1';
+      img.style.border = '2px solid var(--green-mid)';
+      uploaded++;
+      const done = uploaded + failed;
+      if (done === files.length) {
+        if (failed === 0) status.textContent = `✅ все фото загружены (${uploaded} шт.)`;
+        else status.textContent = `загружено ${uploaded} из ${files.length}, ошибка: ${failed}`;
+      } else {
+        status.textContent = `загружено ${uploaded} из ${files.length}...`;
       }
-    };
-    reader.readAsDataURL(file);
+    }).catch(err => {
+      img.style.opacity = '1';
+      img.style.border = '2px solid var(--cherry)';
+      failed++;
+      const done = uploaded + failed;
+      if (done === files.length) status.textContent = `загружено ${uploaded} из ${files.length}, ошибка: ${failed}`;
+      else status.textContent = `загружено ${uploaded} из ${files.length}...`;
+    });
   });
 }
 
