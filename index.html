@@ -392,7 +392,7 @@ function renderYear(year){
       <div class="album-info">
         <div class="album-title">${e.title}</div>
         <div class="album-date">${formatDate(e.date)}</div>
-        <div class="album-tags">${(e.tags||[]).map(t=>{const c=getTagColor(t);return`<span class="tag" style="background:${c.bg};color:${c.color};">${t}</span>`;}).join('')}</div>
+        <div class="album-tags">${(e.tags||[]).map(t=>{const c=getTagColor(t);return`<span class="tag" style="background:${c.bg};color:${c.color};">${t}</span>`;}).join('')}${(e.comments&&e.comments.length)?`<span style="font-size:11px;color:var(--ink-light);margin-left:4px;">💬 ${e.comments.length}</span>`:''}</div>
       </div>
       <span class="album-arrow">›</span>
     </div>`;
