@@ -284,6 +284,8 @@ body{background:var(--cream);font-family:var(--sans);color:var(--ink);min-height
 
 <script>
 const API='https://script.google.com/macros/s/AKfycbyaDZ6wwsafeJ920aM1AQ0P8ZYZjg-MqBj_0h3PGlQmXdcvyGyfSubmdWye6QQxiHz_rw/exec';
+const TG_BOT='8658211560:AAEpFM22ISPxHzuNdsJtIZj7O4ddn3DDXO8';
+const TG_CHANNEL='-1004350961201';
 
 
 const TAG_COLORS=[{bg:'#F5DDE0',color:'#8B2635'},{bg:'#E2EDD8',color:'#3A5C3A'},{bg:'#EDE8F5',color:'#5B4A8A'},{bg:'#F7EDD0',color:'#8A6020'},{bg:'#D6EAF0',color:'#1A5C78'},{bg:'#F0EAD6',color:'#6B4C1E'}];
@@ -558,37 +560,22 @@ function addCustomTag(){
 
 let uploadedPhotoUrls = [];
 
-function compressImage(file) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const img = new Image();
-      img.onload = function() {
-        const canvas = document.createElement('canvas');
-        let w = img.width, h = img.height;
-        const maxDim = 1000;
-        if (w > maxDim || h > maxDim) {
-          if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
-          else { w = Math.round(w * maxDim / h); h = maxDim; }
-        }
-        canvas.width = w; canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        // Compress aggressively to stay under Apps Script limit
-        resolve(canvas.toDataURL('image/jpeg', 0.65));
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
 async function uploadToTelegram(file) {
-  const compressed = await compressImage(file);
-  const base64 = compressed.split(',')[1];
-  // Check size — base64 of 500KB file is ~670KB, Apps Script handles up to ~4MB
-  const resp = await apiPost({action:'uploadPhoto', fileData: base64, fileName: file.name});
-  if (!resp.ok) throw new Error(resp.error || 'upload failed');
-  return resp.url;
+  const formData = new FormData();
+  formData.append('chat_id', TG_CHANNEL);
+  formData.append('photo', file);
+  const sendResp = await fetch(`https://api.telegram.org/bot${TG_BOT}/sendPhoto`, {
+    method: 'POST',
+    body: formData
+  });
+  const sendData = await sendResp.json();
+  if (!sendData.ok) throw new Error(sendData.description);
+  const photos = sendData.result.photo;
+  const fileId = photos[photos.length - 1].file_id;
+  const fileResp = await fetch(`https://api.telegram.org/bot${TG_BOT}/getFile?file_id=${fileId}`);
+  const fileData = await fileResp.json();
+  if (!fileData.ok) throw new Error('cannot get file path');
+  return `https://api.telegram.org/file/bot${TG_BOT}/${fileData.result.file_path}`;
 }
 
 function handlePhotoSelect(event) {
