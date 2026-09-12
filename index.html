@@ -619,13 +619,18 @@ function describeUploadError(err){
   return 'неизвестная ошибка';
 }
 
+// Photos are sent to Telegram as plain documents rather than "photos":
+// sendPhoto has strict aspect-ratio/resolution limits (PHOTO_INVALID_DIMENSIONS)
+// and re-compresses the image; sendDocument has none of those limits and
+// keeps the original file untouched, while still returning a normal file
+// link that works fine as an <img src>.
 async function uploadToTelegram(file){
   const formData=new FormData();
   formData.append('chat_id',TG_CHANNEL);
-  formData.append('photo',file);
+  formData.append('document',file);
   let sendResp;
   try{
-    sendResp=await fetch(`https://api.telegram.org/bot${TG_BOT}/sendPhoto`,{method:'POST',body:formData});
+    sendResp=await fetch(`https://api.telegram.org/bot${TG_BOT}/sendDocument`,{method:'POST',body:formData});
   }catch(e){
     throw new Error('нет соединения с интернетом');
   }
@@ -643,8 +648,7 @@ async function uploadToTelegram(file){
     if(sendResp.status===413)throw new Error('файл слишком большой (Telegram limit)');
     throw new Error(sendData.description||'ошибка Telegram API');
   }
-  const photos=sendData.result.photo;
-  const fileId=photos[photos.length-1].file_id;
+  const fileId=sendData.result.document.file_id;
   let fileResp,fileData;
   try{
     fileResp=await fetch(`https://api.telegram.org/bot${TG_BOT}/getFile?file_id=${fileId}`);
