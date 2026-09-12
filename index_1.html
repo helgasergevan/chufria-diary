@@ -536,7 +536,7 @@ function renderForm(editId){
     const e=entries.find(x=>x.id==editId);
     if(e){
       document.getElementById('f-title').value=e.title||'';
-      document.getElementById('f-date').value=e.date||'';
+      document.getElementById('f-date').value=String(e.date||'').slice(0,10);
       document.getElementById('f-desc').value=e.desc||'';
 
       document.getElementById('f-video').value=e.videoUrl||'';
