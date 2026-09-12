@@ -369,7 +369,7 @@ function showScreen(name,extra){
 function renderMain(){
   const years={};
   entries.forEach(e=>{const y=getYear(e.date);if(y!=='unknown')years[y]=(years[y]||0)+1;});
-  const sorted=Object.keys(years).sort((a,b)=>b-a);
+  const sorted=Object.keys(years).sort((a,b)=>a-b);
   const grid=document.getElementById('yearsGrid');
   if(!sorted.length){grid.innerHTML='<div style="color:var(--ink-light);font-family:var(--serif);font-style:italic;font-size:14px;width:100%;text-align:center;">пока пусто — добавь первое воспоминание 🍒</div>';return;}
   grid.innerHTML=sorted.map(y=>`<div class="year-card" onclick="showScreen('year','${y}')"><div class="year-num">${y}</div><div class="year-count">${years[y]} ${plural(years[y],'воспоминание','воспоминания','воспоминаний')}</div></div>`).join('');
