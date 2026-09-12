@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ЧУФРЯ DIARY</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Nunito:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:#FBF5EC;--cream-dark:#F2E8D6;--cherry:#8B2635;--cherry-light:#C4526A;
+  --cherry-pale:#F5DDE0;--green-dark:#3A5C3A;--gold:#C49A3C;--gold-pale:#F7EDD0;
+  --ink:#2C1810;--ink-mid:#5C3D2E;--ink-light:#9B7B6B;--paper:#FFF9F0;
+  --serif:'Playfair Display',Georgia,serif;--sans:'Nunito',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--cream);font-family:var(--sans);color:var(--ink);min-height:100vh;
+  background-image:radial-gradient(ellipse at 10% 20%,rgba(196,82,106,.06) 0%,transparent 50%),
+  radial-gradient(ellipse at 90% 80%,rgba(107,143,94,.06) 0%,transparent 50%);}
+.deco{position:fixed;pointer-events:none;z-index:0;opacity:.18;}
+.screen{display:none;min-height:100vh;position:relative;z-index:1;}
+.screen.active{display:block;}
+#screen-main{display:none;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:3rem 1.5rem;min-height:100vh;}
+#screen-main.active{display:flex;}
+.main-deco-top{font-size:32px;margin-bottom:.5rem;letter-spacing:8px;}
+.main-title{font-family:var(--serif);font-size:clamp(36px,8vw,64px);color:var(--cherry);
+  line-height:1.1;margin-bottom:.25rem;font-style:italic;}
+.main-subtitle{font-family:var(--serif);font-size:16px;color:var(--ink-light);
+  margin-bottom:.5rem;font-style:italic;}
+.divider-ornament{color:var(--gold);font-size:18px;letter-spacing:6px;margin:1rem 0;}
+.avatars-row{display:flex;justify-content:center;gap:8px;margin:.75rem 0 2rem;}
+.av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:22px;border:1.5px solid rgba(255,255,255,.6);}
+.years-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;
+  max-width:440px;margin:0 auto 2rem;}
+.year-card{background:var(--paper);border:1px solid rgba(139,38,53,.18);border-radius:16px;
+  padding:1.2rem 1.5rem;cursor:pointer;transition:transform .2s,box-shadow .2s;
+  min-width:110px;text-align:center;position:relative;overflow:hidden;}
+.year-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--cherry-light),var(--gold));border-radius:16px 16px 0 0;}
+.year-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(139,38,53,.12);}
+.year-num{font-family:var(--serif);font-size:28px;color:var(--cherry);font-weight:600;
+  line-height:1;margin-bottom:4px;}
+.year-count{font-size:11px;color:var(--ink-light);}
+.add-entry-btn{background:var(--cherry);color:white;border:none;border-radius:50px;
+  padding:12px 28px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;transition:background .15s;margin-top:.5rem;}
+.add-entry-btn:hover{background:#6E1D29;}
+.top-bar{background:var(--paper);border-bottom:1px solid rgba(139,38,53,.12);
+  padding:1.2rem 1.5rem;display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;z-index:10;}
+.back-btn{background:none;border:1px solid rgba(139,38,53,.2);border-radius:50%;
+  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--cherry);font-size:18px;transition:background .15s;flex-shrink:0;}
+.back-btn:hover{background:var(--cherry-pale);}
+.top-bar-title{font-family:var(--serif);font-size:22px;color:var(--cherry);
+  font-style:italic;flex:1;}
+.filter-bar{padding:.75rem 1.5rem;display:flex;gap:6px;flex-wrap:wrap;
+  border-bottom:1px solid rgba(139,38,53,.08);background:var(--cream);}
+.filter-tag{font-size:12px;padding:4px 12px;border-radius:20px;
+  border:1px solid rgba(139,38,53,.2);background:transparent;color:var(--ink-mid);
+  cursor:pointer;font-family:var(--sans);font-weight:600;transition:all .15s;}
+.filter-tag.active{background:var(--cherry);color:white;border-color:var(--cherry);}
+.albums-list{padding:1.5rem;max-width:640px;margin:0 auto;}
+.month-sep{font-family:var(--serif);font-size:13px;color:var(--ink-light);font-style:italic;
+  margin:1.5rem 0 .75rem;display:flex;align-items:center;gap:10px;}
+.month-sep::after{content:'';flex:1;height:.5px;background:rgba(139,38,53,.15);}
+.album-card{background:var(--paper);border:1px solid rgba(139,38,53,.12);border-radius:16px;
+  padding:1.1rem 1.25rem;margin-bottom:12px;cursor:pointer;
+  transition:transform .2s,box-shadow .2s;display:flex;align-items:center;gap:14px;}
+.album-card:hover{transform:translateX(4px);box-shadow:0 4px 16px rgba(139,38,53,.08);}
+.album-thumb{width:64px;height:64px;border-radius:12px;flex-shrink:0;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;font-size:28px;background:var(--cream-dark);}
+.album-thumb img{width:100%;height:100%;object-fit:cover;}
+.album-info{flex:1;min-width:0;}
+.album-title{font-family:var(--serif);font-size:16px;color:var(--ink);margin-bottom:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.album-date{font-size:12px;color:var(--ink-light);margin-bottom:6px;}
+.album-tags{display:flex;gap:4px;flex-wrap:wrap;}
+.tag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;}
+.album-arrow{color:var(--ink-light);font-size:18px;flex-shrink:0;}
+.album-content{padding:1.5rem;max-width:640px;margin:0 auto;}
+.album-desc{font-family:var(--serif);font-size:15px;color:var(--ink-mid);line-height:1.8;
+  font-style:italic;margin-bottom:1.5rem;padding:1rem 1.25rem;background:var(--gold-pale);
+  border-left:3px solid var(--gold);border-radius:0 8px 8px 0;}
+/* Photo grid */
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:8px;margin-bottom:1.5rem;}
+.photo-grid-item{border-radius:10px;overflow:hidden;aspect-ratio:1;
+  background:var(--cream-dark);cursor:pointer;position:relative;}
+.photo-grid-item img{width:100%;height:100%;object-fit:cover;transition:transform .2s;}
+.photo-grid-item:hover img{transform:scale(1.05);}
+.photo-del-btn{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;
+  background:rgba(139,38,53,.85);color:#fff;border:none;font-size:13px;cursor:pointer;
+  line-height:1;display:flex;align-items:center;justify-content:center;z-index:2;}
+.photo-del-btn:hover{background:var(--cherry);}
+/* Lightbox */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);
+  z-index:200;align-items:center;justify-content:center;padding:1rem;}
+.lightbox.open{display:flex;}
+.lightbox img{max-width:100%;max-height:90vh;border-radius:8px;object-fit:contain;}
+.lightbox-close{position:absolute;top:1rem;right:1rem;background:none;border:none;
+  color:white;font-size:32px;cursor:pointer;line-height:1;}
+.lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);
+  border:none;color:white;font-size:28px;cursor:pointer;padding:.5rem 1rem;border-radius:8px;}
+.lightbox-prev{left:.5rem;}
+.lightbox-next{right:.5rem;}
+.video-block{background:var(--ink);border-radius:12px;overflow:hidden;
+  margin-bottom:1.5rem;aspect-ratio:16/9;}
+.video-block iframe{width:100%;height:100%;border:none;}
+.tags-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem;}
+.tag-big{font-size:12px;padding:4px 12px;border-radius:20px;font-weight:600;}
+.jokes-block{background:var(--cherry-pale);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;}
+.jokes-title{font-family:var(--serif);font-size:14px;color:var(--cherry);font-weight:600;margin-bottom:.75rem;display:flex;align-items:center;gap:6px;}
+.joke-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:.5px solid rgba(139,38,53,.1);}
+.joke-item:last-child{border-bottom:none;}
+.joke-text{font-size:14px;color:var(--ink-mid);flex:1;line-height:1.5;}
+.jokes-form{display:flex;gap:6px;margin-top:.75rem;}
+.joke-input{flex:1;padding:8px 12px;border:1px solid rgba(139,38,53,.2);border-radius:8px;background:white;font-family:var(--sans);font-size:14px;color:var(--ink);outline:none;}
+.joke-input:focus{border-color:var(--cherry-light);}
+.joke-add-btn{background:var(--cherry);color:white;border:none;border-radius:8px;padding:0 14px;cursor:pointer;font-size:18px;font-weight:600;}
+.joke-del-btn{background:none;border:none;cursor:pointer;color:var(--ink-light);font-size:16px;padding:0 2px;line-height:1;flex-shrink:0;}
+.joke-del-btn:hover{color:var(--cherry);}
+.comments-block{margin-bottom:1.5rem;}
+.comments-title{font-family:var(--serif);font-size:14px;color:var(--cherry);font-weight:600;margin-bottom:.75rem;display:flex;align-items:center;gap:6px;}
+.comment-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:.5px solid rgba(139,38,53,.08);}
+.comment-item:last-child{border-bottom:none;}
+.comment-avatar{width:28px;height:28px;border-radius:50%;background:var(--cherry-pale);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--cherry);flex-shrink:0;}
+.comment-body{flex:1;}
+.comment-author{font-size:12px;font-weight:700;color:var(--cherry);margin-bottom:2px;}
+.comment-text{font-size:13px;color:var(--ink-mid);line-height:1.5;}
+.comment-time{font-size:11px;color:var(--ink-light);margin-top:2px;}
+.comment-del{background:none;border:none;cursor:pointer;color:var(--ink-light);font-size:13px;padding:0 2px;flex-shrink:0;}
+.comment-del:hover{color:var(--cherry);}
+.comment-form{background:var(--cream-dark);border-radius:12px;padding:.875rem 1rem;margin-top:.75rem;}
+.comment-name-row{display:flex;gap:6px;margin-bottom:8px;}
+.comment-select{flex:1;padding:7px 10px;border:1px solid rgba(139,38,53,.2);border-radius:8px;background:white;font-family:var(--sans);font-size:13px;color:var(--ink);outline:none;-webkit-appearance:none;}
+.comment-input-row{display:flex;gap:6px;}
+.comment-text-input{flex:1;padding:8px 12px;border:1px solid rgba(139,38,53,.2);border-radius:8px;background:white;font-family:var(--sans);font-size:13px;color:var(--ink);outline:none;}
+.comment-text-input:focus{border-color:var(--cherry-light);}
+.comment-send-btn{background:var(--cherry);color:white;border:none;border-radius:8px;padding:0 14px;cursor:pointer;font-size:16px;flex-shrink:0;}
+.action-btns{display:flex;gap:8px;margin-top:.5rem;}
+.btn-outline{flex:1;padding:10px;border:1px solid rgba(139,38,53,.2);border-radius:10px;
+  background:transparent;color:var(--cherry);font-family:var(--sans);font-size:13px;
+  cursor:pointer;transition:background .15s;}
+.btn-outline:hover{background:var(--cherry-pale);}
+/* Form */
+.form-body{padding:1.5rem;max-width:560px;margin:0 auto;padding-bottom:3rem;}
+.form-group{margin-bottom:1.2rem;}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--ink-mid);
+  margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;}
+.form-input,.form-textarea{width:100%;padding:10px 14px;
+  border:1px solid rgba(139,38,53,.2);border-radius:10px;background:var(--paper);
+  font-family:var(--sans);font-size:15px;color:var(--ink);outline:none;
+  transition:border-color .15s;-webkit-appearance:none;}
+.form-input:focus,.form-textarea:focus{border-color:var(--cherry-light);
+  box-shadow:0 0 0 3px rgba(196,82,106,.1);}
+.form-textarea{resize:vertical;min-height:80px;}
+.tags-input-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
+.tag-pill{background:var(--cherry-pale);color:var(--cherry);font-size:12px;
+  padding:3px 10px;border-radius:20px;font-weight:600;cursor:pointer;border:none;
+  font-family:var(--sans);}
+.tag-pill.selected{background:var(--cherry);color:white;}
+.photos-note{font-size:12px;color:var(--ink-light);font-style:italic;
+  padding:10px 14px;background:var(--gold-pale);border-radius:10px;line-height:1.6;}
+.submit-btn{width:100%;background:var(--cherry);color:white;border:none;
+  border-radius:50px;padding:14px;font-family:var(--sans);font-size:15px;
+  font-weight:700;cursor:pointer;margin-top:1rem;transition:background .15s;}
+.submit-btn:hover{background:#6E1D29;}
+.submit-btn:disabled{background:var(--ink-light);cursor:not-allowed;}
+.loading{text-align:center;padding:3rem;font-family:var(--serif);
+  font-style:italic;color:var(--ink-light);font-size:15px;}
+.empty-state{text-align:center;padding:3rem 1.5rem;color:var(--ink-light);
+  font-family:var(--serif);font-style:italic;font-size:15px;}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);
+  background:var(--green-dark);color:white;padding:10px 20px;border-radius:50px;
+  font-size:14px;font-weight:600;z-index:100;transition:transform .3s;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.error{background:var(--cherry);}
+</style>
+</head>
+<body>
+
+<div class="deco" style="top:5%;left:2%;width:80px;height:80px;">
+<svg viewBox="0 0 80 80" fill="none"><circle cx="24" cy="56" r="14" fill="#8B2635"/><circle cx="52" cy="60" r="12" fill="#8B2635"/><path d="M24 42 Q36 10 52 48" stroke="#3A5C3A" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>
+</div>
+<div class="deco" style="bottom:10%;right:3%;width:70px;height:70px;opacity:.12;">
+<svg viewBox="0 0 70 70" fill="none"><circle cx="20" cy="50" r="12" fill="#8B2635"/><circle cx="46" cy="54" r="10" fill="#8B2635"/><path d="M20 38 Q33 8 46 44" stroke="#3A5C3A" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+</div>
+
+<!-- MAIN -->
+<div id="screen-main" class="screen active">
+  <div class="main-deco-top">🍒 ✿ 🍒</div>
+  <h1 class="main-title">Чуфря Diary</h1>
+  <p class="main-subtitle">наши маленькие большие встречи</p>
+  <div class="divider-ornament">— ✦ —</div>
+  <div class="avatars-row">
+    <div class="av" style="background:#F5DDE0;">🧑‍🦲</div>
+    <div class="av" style="background:#E2EDD8;">👱‍♀️</div>
+    <div class="av" style="background:#EDE8F5;">👱‍♀️</div>
+    <div class="av" style="background:#F7EDD0;">👩‍🦳</div>
+  </div>
+  <div id="yearsGrid" class="years-grid"><div class="loading">загружаю воспоминания...</div></div>
+  <button class="add-entry-btn" onclick="showScreen('form')">+ добавить воспоминание</button>
+</div>
+
+<!-- YEAR -->
+<div id="screen-year" class="screen">
+  <div class="top-bar">
+    <button class="back-btn" onclick="showScreen('main')">←</button>
+    <div class="top-bar-title" id="yearHeaderTitle"></div>
+  </div>
+  <div class="filter-bar" id="yearFilterBar"></div>
+  <div class="albums-list" id="albumsList"></div>
+</div>
+
+<!-- ALBUM -->
+<div id="screen-album" class="screen">
+  <div class="top-bar">
+    <button class="back-btn" id="albumBackBtn">←</button>
+    <div style="flex:1">
+      <div style="font-family:var(--serif);font-size:18px;color:var(--cherry);font-style:italic;" id="albumHeaderTitle"></div>
+      <div style="font-size:12px;color:var(--ink-light);" id="albumHeaderDate"></div>
+    </div>
+  </div>
+  <div class="album-content" id="albumContent"></div>
+</div>
+
+<!-- FORM (add / edit) -->
+<div id="screen-form" class="screen">
+  <div class="top-bar">
+    <button class="back-btn" onclick="showScreen('main')">←</button>
+    <div class="top-bar-title" id="formTitle">новое воспоминание</div>
+  </div>
+  <div class="form-body">
+    <input type="hidden" id="f-id">
+    <div class="form-group">
+      <label class="form-label">название встречи</label>
+      <input class="form-input" id="f-title" placeholder="пикник у реки, кино в пятницу...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">дата события</label>
+      <input class="form-input" id="f-date" type="date">
+    </div>
+    <div class="form-group">
+      <label class="form-label">описание</label>
+      <textarea class="form-textarea" id="f-desc" placeholder="расскажи, как это было..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">теги</label>
+      <div class="tags-input-row" id="tagsRow"></div>
+      <div style="display:flex;gap:6px;margin-top:6px;">
+        <input class="form-input" id="f-newtag" placeholder="свой тег..." style="flex:1;">
+        <button onclick="addCustomTag()" style="background:var(--cherry);color:white;border:none;border-radius:10px;padding:0 14px;cursor:pointer;font-family:var(--sans);font-weight:600;font-size:18px;">+</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">ссылка на видео (YouTube)</label>
+      <input class="form-input" id="f-video" placeholder="https://youtu.be/...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">😂 мемы встречи</label>
+      <div class="photos-note">Каждый прикол — на отдельной строке</div>
+      <textarea class="form-textarea" id="f-jokes" placeholder="«это теперь наш мем»&#10;«никогда не произноси это слово»&#10;..." style="margin-top:6px;min-height:80px;font-size:14px;"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">фотографии</label>
+      <input type="file" id="f-photo-input" accept="image/*" multiple style="display:none;" onchange="handlePhotoSelect(event)">
+      <button type="button" onclick="document.getElementById('f-photo-input').click()" style="width:100%;padding:14px;border:1.5px dashed rgba(139,38,53,0.3);border-radius:10px;background:var(--gold-pale);color:var(--cherry);font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;">
+        📷 выбрать фото из галереи
+      </button>
+      <div id="photo-preview" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
+      <div id="photo-upload-status" style="font-size:12px;color:var(--ink-light);margin-top:6px;font-style:italic;min-height:18px;"></div>
+    </div>
+    <button class="submit-btn" id="submitBtn" onclick="submitEntry()">сохранить воспоминание 🍒</button>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">×</button>
+  <button class="lightbox-nav lightbox-prev" onclick="event.stopPropagation();lightboxNav(-1)">‹</button>
+  <img id="lightboxImg" src="" alt="">
+  <button class="lightbox-nav lightbox-next" onclick="event.stopPropagation();lightboxNav(1)">›</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API='https://script.google.com/macros/s/AKfycbyaDZ6wwsafeJ920aM1AQ0P8ZYZjg-MqBj_0h3PGlQmXdcvyGyfSubmdWye6QQxiHz_rw/exec';
+const TG_BOT='8658211560:AAEpFM22ISPxHzuNdsJtIZj7O4ddn3DDXO8';
+const TG_CHANNEL='-1004350961201';
+
+
+const TAG_COLORS=[{bg:'#F5DDE0',color:'#8B2635'},{bg:'#E2EDD8',color:'#3A5C3A'},{bg:'#EDE8F5',color:'#5B4A8A'},{bg:'#F7EDD0',color:'#8A6020'},{bg:'#D6EAF0',color:'#1A5C78'},{bg:'#F0EAD6',color:'#6B4C1E'}];
+const PRESET_TAGS=['природа','город','праздник','день рождения','кино','кафе','путешествие','дома','лето','зима','весна','осень'];
+const MONTHS=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+const MONTHS_GEN=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+
+let entries=[],currentYear=null,currentEntryId=null,activeFilter=null,selectedTags=[];
+let lightboxPhotos=[],lightboxIdx=0;
+
+function getTagColor(s){let h=0;for(let c of(s||'x'))h=(h*31+c.charCodeAt(0))%TAG_COLORS.length;return TAG_COLORS[Math.abs(h)];}
+function formatDate(d){if(!d)return'';const dt=new Date(String(d).includes('T')?d:d+'T12:00:00');if(isNaN(dt))return String(d);return dt.getDate()+' '+MONTHS_GEN[dt.getMonth()]+' '+dt.getFullYear();}
+function getYear(d){if(!d)return'unknown';const dt=new Date(String(d).includes('T')?d:d+'T12:00:00');return isNaN(dt)?'unknown':dt.getFullYear();}
+function getMonth(d){if(!d)return 0;const dt=new Date(String(d).includes('T')?d:d+'T12:00:00');return isNaN(dt)?0:dt.getMonth();}
+function plural(n,a,b,c){if(n%10===1&&n%100!==11)return a;if([2,3,4].includes(n%10)&&![12,13,14].includes(n%100))return b;return c;}
+
+// Convert Google Drive share link to direct image URL
+function driveToImg(url){
+  if(!url)return'';
+  url=url.trim();
+  // already thumbnail
+  if(url.includes('drive.google.com/thumbnail'))return url;
+  // extract file ID from any Google Drive link
+  const m=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if(m)return'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w1200';
+  // already direct uc link - convert to thumbnail
+  const m2=url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if(m2)return'https://drive.google.com/thumbnail?id='+m2[1]+'&sz=w1200';
+  return url;
+}
+
+function parsePhotos(raw){
+  if(!raw)return[];
+  if(Array.isArray(raw))return raw.map(driveToImg).filter(Boolean);
+  // newline or comma separated
+  return raw.split(/[\n,]+/).map(s=>driveToImg(s.trim())).filter(Boolean);
+}
+
+function parseJokes(raw){
+  if(!raw||raw===''||raw==='[]')return[];
+  if(Array.isArray(raw))return raw.filter(Boolean);
+  try{const p=JSON.parse(raw);if(Array.isArray(p))return p.filter(Boolean);}catch(e){}
+  return String(raw).split('\n').map(s=>s.trim()).filter(Boolean);
+}
+
+function parseComments(raw){
+  if(!raw||raw===''||raw==='[]')return[];
+  if(Array.isArray(raw))return raw;
+  try{const p=JSON.parse(raw);if(Array.isArray(p))return p;}catch(e){}
+  return[];
+}
+
+async function loadEntries(){
+  try{
+    const r=await fetch(API+'?action=getAll');
+    const data=await r.json();
+    if(data.ok)entries=(data.entries||[]).map(e=>({...e,photos:parsePhotos(e.photos),jokes:parseJokes(e.jokes),comments:parseComments(e.comments)}));
+  }catch(e){showToast('не удалось загрузить данные',true);}
+  renderMain();
+}
+
+async function apiPost(body){
+  const r=await fetch(API,{method:'POST',body:JSON.stringify(body)});
+  return r.json();
+}
+
+function showScreen(name,extra){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  window.scrollTo(0,0);
+  if(name==='main')renderMain();
+  if(name==='year')renderYear(extra);
+  if(name==='album')renderAlbum(extra);
+  if(name==='form')renderForm(extra);
+}
+
+function renderMain(){
+  const years={};
+  entries.forEach(e=>{const y=getYear(e.date);if(y!=='unknown')years[y]=(years[y]||0)+1;});
+  const sorted=Object.keys(years).sort((a,b)=>b-a);
+  const grid=document.getElementById('yearsGrid');
+  if(!sorted.length){grid.innerHTML='<div style="color:var(--ink-light);font-family:var(--serif);font-style:italic;font-size:14px;width:100%;text-align:center;">пока пусто — добавь первое воспоминание 🍒</div>';return;}
+  grid.innerHTML=sorted.map(y=>`<div class="year-card" onclick="showScreen('year','${y}')"><div class="year-num">${y}</div><div class="year-count">${years[y]} ${plural(years[y],'воспоминание','воспоминания','воспоминаний')}</div></div>`).join('');
+}
+
+function renderYear(year){
+  currentYear=year;
+  document.getElementById('yearHeaderTitle').textContent=year+' год';
+  const yearEntries=entries.filter(e=>getYear(e.date)==year).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const allTags=[...new Set(yearEntries.flatMap(e=>e.tags||[]))];
+  document.getElementById('yearFilterBar').innerHTML=['все',...allTags].map(t=>`<button class="filter-tag ${(activeFilter===t||(activeFilter===null&&t==='все'))?'active':''}" onclick="setFilter('${t}','${year}')">${t}</button>`).join('');
+  const filtered=activeFilter?yearEntries.filter(e=>(e.tags||[]).includes(activeFilter)):yearEntries;
+  const list=document.getElementById('albumsList');
+  if(!filtered.length){list.innerHTML='<div class="empty-state">ничего не найдено</div>';return;}
+  let html='',lastMonth=-1;
+  filtered.forEach(e=>{
+    const m=getMonth(e.date);
+    if(m!==lastMonth){html+=`<div class="month-sep">${MONTHS[m]}</div>`;lastMonth=m;}
+    const tc=getTagColor(e.emoji||e.title);
+    const thumbHtml=(e.photos&&e.photos.length)
+      ?`<img src="${e.photos[0]}" onerror="this.parentNode.innerHTML='${e.emoji||'📸'}'" alt="">`
+      :(e.emoji||'📸');
+    html+=`<div class="album-card" onclick="showScreen('album',${e.id})">
+      <div class="album-thumb" style="background:${tc.bg};">${thumbHtml}</div>
+      <div class="album-info">
+        <div class="album-title">${e.title}</div>
+        <div class="album-date">${formatDate(e.date)}</div>
+        <div class="album-tags">${(e.tags||[]).map(t=>{const c=getTagColor(t);return`<span class="tag" style="background:${c.bg};color:${c.color};">${t}</span>`;}).join('')}${(e.comments&&e.comments.length)?`<span style="font-size:11px;color:var(--ink-light);margin-left:4px;">💬 ${e.comments.length}</span>`:''}</div>
+      </div>
+      <span class="album-arrow">›</span>
+    </div>`;
+  });
+  list.innerHTML=html;
+}
+
+function setFilter(tag,year){activeFilter=tag==='все'?null:tag;renderYear(year);}
+
+function renderAlbum(id){
+  const entry=entries.find(e=>e.id==id);
+  if(!entry)return;
+  currentEntryId=id;
+  document.getElementById('albumHeaderTitle').textContent=entry.title;
+  document.getElementById('albumHeaderDate').textContent=formatDate(entry.date);
+  document.getElementById('albumBackBtn').onclick=()=>showScreen('year',getYear(entry.date));
+  let html='';
+  if(entry.desc)html+=`<div class="album-desc">${entry.desc}</div>`;
+  let jokes=[];
+  if(Array.isArray(entry.jokes))jokes=entry.jokes.filter(Boolean);
+  else if(entry.jokes)jokes=parseJokes(entry.jokes);
+  if(jokes&&jokes.length){
+    html+=`<div class="jokes-block">
+      <div class="jokes-title">😂 мемы встречи</div>
+      ${jokes.map(j=>`<div class="joke-item"><span class="joke-text">• ${j}</span></div>`).join('')}
+    </div>`;}
+  const photos=entry.photos||[];
+  if(photos.length){
+    html+=`<div class="photo-grid" id="photoGrid">`;
+    photos.forEach((p,i)=>{
+      html+=`<div class="photo-grid-item" onclick="openLightbox(${i})">
+        <button class="photo-del-btn" onclick="event.stopPropagation();deletePhoto(${id},${i})" title="удалить фото">✕</button>
+        <img src="${p}" onerror="this.parentNode.style.display='none'" alt="">
+      </div>`;
+    });
+    html+=`</div>`;
+  } else {
+    html+=`<div style="text-align:center;padding:2rem;background:var(--cream-dark);border-radius:12px;margin-bottom:1.5rem;">
+      <div style="font-size:48px;margin-bottom:8px;">${entry.emoji||'📸'}</div>
+      <div style="font-family:var(--serif);font-style:italic;font-size:13px;color:var(--ink-light);">фотографии ещё не добавлены</div>
+    </div>`;
+  }
+  if(entry.videoUrl){
+    const ytId=(entry.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/)||[])[1];
+    if(ytId)html+=`<div class="video-block"><iframe src="https://www.youtube.com/embed/${ytId}?rel=0" allow="autoplay;encrypted-media" allowfullscreen></iframe></div>`;
+  }
+  if((entry.tags||[]).length)html+=`<div class="tags-row">${entry.tags.map(t=>{const c=getTagColor(t);return`<span class="tag-big" style="background:${c.bg};color:${c.color};">${t}</span>`;}).join('')}</div>`;
+  // Comments
+  const comments = entry.comments||[];
+  const savedName = localStorage.getItem('chufria_name')||'';
+  html+=`<div class="comments-block">
+    <div class="comments-title">💬 комментарии</div>
+    <div id="comments-list">
+      ${comments.length ? comments.map((c,i)=>`
+        <div class="comment-item" data-idx="${i}">
+          <div class="comment-avatar">${c.name.charAt(0)}</div>
+          <div class="comment-body">
+            <div class="comment-author">${c.name}</div>
+            <div class="comment-text">${c.text}</div>
+            <div class="comment-time">${c.time||''}</div>
+          </div>
+          <button class="comment-del" onclick="deleteComment(${id},${i})">✕</button>
+        </div>`).join('') : '<div style="font-size:13px;color:var(--ink-light);font-style:italic;padding:4px 0;">пока нет комментариев</div>'}
+    </div>
+    <div class="comment-form">
+      <div class="comment-name-row">
+        <select class="comment-select" id="comment-name" onchange="localStorage.setItem('chufria_name',this.value)">
+          <option value="">— выбери имя —</option>
+          <option value="Окси" ${savedName==='Окси'?'selected':''}>Окси</option>
+          <option value="Олька" ${savedName==='Олька'?'selected':''}>Олька</option>
+          <option value="Олеська" ${savedName==='Олеська'?'selected':''}>Олеська</option>
+          <option value="Алёнка" ${savedName==='Алёнка'?'selected':''}>Алёнка</option>
+        </select>
+      </div>
+      <div class="comment-input-row">
+        <input class="comment-text-input" id="comment-text" placeholder="написать комментарий..." onkeydown="if(event.key==='Enter')addComment(${id})">
+        <button class="comment-send-btn" onclick="addComment(${id})">→</button>
+      </div>
+    </div>
+  </div>`;
+
+  html+=`<div class="action-btns">
+    <button class="btn-outline" onclick="showScreen('form',${id})">✏️ редактировать</button>
+    <button class="btn-outline" onclick="deleteEntry(${id})">🗑 удалить</button>
+  </div>`;
+  document.getElementById('albumContent').innerHTML=html;
+  lightboxPhotos=photos;
+}
+
+function openLightbox(idx){
+  lightboxIdx=idx;
+  document.getElementById('lightboxImg').src=lightboxPhotos[idx];
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('open');}
+function lightboxNav(dir){
+  lightboxIdx=(lightboxIdx+dir+lightboxPhotos.length)%lightboxPhotos.length;
+  document.getElementById('lightboxImg').src=lightboxPhotos[lightboxIdx];
+}
+
+async function deleteEntry(id){
+  if(!confirm('Удалить это воспоминание?'))return;
+  try{await apiPost({action:'delete',id});entries=entries.filter(e=>e.id!=id);showToast('запись удалена');showScreen('year',currentYear);}
+  catch(e){showToast('ошибка при удалении',true);}
+}
+
+async function deletePhoto(entryId,idx){
+  if(!confirm('Удалить это фото из альбома?'))return;
+  const entry=entries.find(e=>e.id==entryId);
+  if(!entry)return;
+  entry.photos=entry.photos||[];
+  const removed=entry.photos.splice(idx,1);
+  try{
+    await apiPost({action:'update',entry});
+    renderAlbum(entryId);
+    showToast('фото удалено 🍒');
+  }catch(e){
+    // rollback on failure
+    entry.photos.splice(idx,0,...removed);
+    showToast('ошибка при удалении фото',true);
+  }
+}
+
+function renderForm(editId){
+  selectedTags=[];
+  uploadedPhotoUrls=[];
+  const prevEl=document.getElementById('photo-preview');
+  if(prevEl)prevEl.innerHTML='';
+  const statEl=document.getElementById('photo-upload-status');
+  if(statEl)statEl.textContent='';
+  document.getElementById('f-id').value=editId||'';
+  document.getElementById('formTitle').textContent=editId?'редактировать':'новое воспоминание';
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=false;btn.textContent=editId?'сохранить изменения 🍒':'сохранить воспоминание 🍒';
+  if(editId){
+    const e=entries.find(x=>x.id==editId);
+    if(e){
+      document.getElementById('f-title').value=e.title||'';
+      document.getElementById('f-date').value=e.date||'';
+      document.getElementById('f-desc').value=e.desc||'';
+
+      document.getElementById('f-video').value=e.videoUrl||'';
+      document.getElementById('f-jokes').value=(e.jokes||[]).join('\n');
+      // show existing photos in preview (removable)
+      uploadedPhotoUrls=[...(e.photos||[])];
+      renderPhotoPreview();
+      selectedTags=[...(e.tags||[])];
+    }
+  } else {
+    ['f-title','f-desc','f-video','f-photos','f-jokes','f-newtag'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+  }
+  const row=document.getElementById('tagsRow');
+  row.innerHTML=PRESET_TAGS.map(t=>`<button class="tag-pill ${selectedTags.includes(t)?'selected':''}" onclick="toggleTag('${t}',this)">${t}</button>`).join('');
+  // add any custom tags not in presets
+  selectedTags.filter(t=>!PRESET_TAGS.includes(t)).forEach(t=>{
+    const btn=document.createElement('button');
+    btn.className='tag-pill selected';btn.textContent=t;
+    btn.onclick=()=>toggleTag(t,btn);row.appendChild(btn);
+  });
+}
+
+function toggleTag(tag,btn){
+  if(selectedTags.includes(tag)){selectedTags=selectedTags.filter(t=>t!==tag);btn.classList.remove('selected');}
+  else{selectedTags.push(tag);btn.classList.add('selected');}
+}
+
+function addCustomTag(){
+  const inp=document.getElementById('f-newtag');
+  const val=inp.value.trim();
+  if(!val)return;
+  if(!selectedTags.includes(val)){
+    selectedTags.push(val);
+    const row=document.getElementById('tagsRow');
+    const btn=document.createElement('button');
+    btn.className='tag-pill selected';btn.textContent=val;
+    btn.onclick=()=>toggleTag(val,btn);row.appendChild(btn);
+  }
+  inp.value='';
+}
+
+let uploadedPhotoUrls = [];
+
+// Small helper: builds a removable thumbnail (photo already uploaded / already saved)
+function makePhotoThumb(url,onRemove){
+  const wrap=document.createElement('div');
+  wrap.style.cssText='position:relative;width:70px;height:70px;';
+  const img=document.createElement('img');
+  img.src=url;
+  img.style.cssText='width:70px;height:70px;object-fit:cover;border-radius:8px;border:2px solid var(--green-mid,#3A5C3A);display:block;';
+  wrap.appendChild(img);
+  const delBtn=document.createElement('button');
+  delBtn.type='button';
+  delBtn.textContent='✕';
+  delBtn.title='убрать фото';
+  delBtn.style.cssText='position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--cherry);color:#fff;border:none;font-size:11px;line-height:1;cursor:pointer;';
+  delBtn.onclick=onRemove;
+  wrap.appendChild(delBtn);
+  return wrap;
+}
+
+// Rebuilds the whole preview strip from uploadedPhotoUrls (used for already-uploaded/saved photos)
+function renderPhotoPreview(){
+  const prev=document.getElementById('photo-preview');
+  if(!prev)return;
+  prev.innerHTML='';
+  uploadedPhotoUrls.forEach((url,i)=>{
+    prev.appendChild(makePhotoThumb(url,()=>{
+      const idx=uploadedPhotoUrls.indexOf(url);
+      if(idx>-1)uploadedPhotoUrls.splice(idx,1);
+      renderPhotoPreview();
+    }));
+  });
+}
+
+// Human-readable reason for an upload failure
+function describeUploadError(err){
+  if(err && err.message)return err.message;
+  return 'неизвестная ошибка';
+}
+
+async function uploadToTelegram(file){
+  const formData=new FormData();
+  formData.append('chat_id',TG_CHANNEL);
+  formData.append('photo',file);
+  let sendResp;
+  try{
+    sendResp=await fetch(`https://api.telegram.org/bot${TG_BOT}/sendPhoto`,{method:'POST',body:formData});
+  }catch(e){
+    throw new Error('нет соединения с интернетом');
+  }
+  let sendData;
+  try{ sendData=await sendResp.json(); }
+  catch(e){ throw new Error('сервер Telegram вернул некорректный ответ'); }
+  if(!sendData.ok){
+    const retryAfter=sendData.parameters&&sendData.parameters.retry_after;
+    if(sendResp.status===429||retryAfter){
+      const wait=retryAfter||3;
+      const err=new Error(`слишком много запросов к Telegram, повтор через ${wait} сек`);
+      err.retryAfter=wait;
+      throw err;
+    }
+    if(sendResp.status===413)throw new Error('файл слишком большой (Telegram limit)');
+    throw new Error(sendData.description||'ошибка Telegram API');
+  }
+  const photos=sendData.result.photo;
+  const fileId=photos[photos.length-1].file_id;
+  let fileResp,fileData;
+  try{
+    fileResp=await fetch(`https://api.telegram.org/bot${TG_BOT}/getFile?file_id=${fileId}`);
+    fileData=await fileResp.json();
+  }catch(e){ throw new Error('не удалось получить ссылку на файл'); }
+  if(!fileData.ok)throw new Error(fileData.description||'не удалось получить ссылку на файл');
+  return `https://api.telegram.org/file/bot${TG_BOT}/${fileData.result.file_path}`;
+}
+
+function handlePhotoSelect(event){
+  const files=Array.from(event.target.files);
+  if(!files.length)return;
+  const preview=document.getElementById('photo-preview');
+  const status=document.getElementById('photo-upload-status');
+  let uploaded=0,failed=0;
+  const errors=[];
+  const CONCURRENCY=3;
+  let nextIdx=0;
+
+  function updateStatus(){
+    const done=uploaded+failed;
+    let text=(done===files.length)
+      ?(failed===0?`✅ все фото загружены (${uploaded} шт.)`:`загружено ${uploaded} из ${files.length}, с ошибкой: ${failed}`)
+      :`загружено ${uploaded} из ${files.length} (ещё в процессе...)`;
+    if(errors.length){
+      text+='<div style="color:var(--cherry);margin-top:4px;">'+
+        errors.map(e=>`• ${e.name}: ${e.reason}`).join('<br>')+'</div>';
+    }
+    status.innerHTML=text;
+  }
+  updateStatus();
+
+  async function uploadOne(file,wrap,img,attempt){
+    attempt=attempt||0;
+    try{
+      const url=await uploadToTelegram(file);
+      uploadedPhotoUrls.push(url);
+      img.style.opacity='1';
+      img.style.border='2px solid var(--green-mid,#3A5C3A)';
+      const delBtn=document.createElement('button');
+      delBtn.type='button';delBtn.textContent='✕';delBtn.title='убрать фото';
+      delBtn.style.cssText='position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--cherry);color:#fff;border:none;font-size:11px;line-height:1;cursor:pointer;';
+      delBtn.onclick=()=>{
+        const idx=uploadedPhotoUrls.indexOf(url);
+        if(idx>-1)uploadedPhotoUrls.splice(idx,1);
+        wrap.remove();
+      };
+      wrap.appendChild(delBtn);
+      uploaded++;
+    }catch(err){
+      if(err.retryAfter&&attempt<2){
+        await new Promise(r=>setTimeout(r,(err.retryAfter+0.5)*1000));
+        return uploadOne(file,wrap,img,attempt+1);
+      }
+      img.style.opacity='1';
+      img.style.border='2px solid var(--cherry)';
+      img.title=describeUploadError(err);
+      failed++;
+      errors.push({name:file.name,reason:describeUploadError(err)});
+    }
+    updateStatus();
+  }
+
+  async function worker(){
+    while(nextIdx<files.length){
+      const i=nextIdx++;
+      const file=files[i];
+      const wrap=document.createElement('div');
+      wrap.style.cssText='position:relative;width:70px;height:70px;';
+      const img=document.createElement('img');
+      img.style.cssText='width:70px;height:70px;object-fit:cover;border-radius:8px;border:2px solid var(--cherry-pale);opacity:0.5;display:block;';
+      wrap.appendChild(img);
+      preview.appendChild(wrap);
+      img.src=URL.createObjectURL(file);
+      await uploadOne(file,wrap,img);
+    }
+  }
+
+  const workers=[];
+  for(let w=0;w<Math.min(CONCURRENCY,files.length);w++)workers.push(worker());
+  Promise.all(workers);
+}
+
+async function submitEntry(){
+  const title=document.getElementById('f-title').value.trim();
+  const date=document.getElementById('f-date').value;
+  if(!title){showToast('введи название встречи',true);return;}
+  if(!date){showToast('выбери дату',true);return;}
+  const photos = uploadedPhotoUrls.length ? uploadedPhotoUrls : [];
+  const editId=document.getElementById('f-id').value;
+  const jokesRaw=document.getElementById('f-jokes').value;
+  const jokes=jokesRaw.split('\n').map(s=>s.trim()).filter(Boolean);
+  const existingEntry = editId ? entries.find(e=>e.id==editId) : null;
+  const entry={
+    id:editId?Number(editId):Date.now(),
+    title,date,
+    desc:document.getElementById('f-desc').value.trim(),
+    tags:[...selectedTags],
+    emoji:'📸',
+    photos,
+    jokes,
+    comments: existingEntry ? (existingEntry.comments||[]) : [],
+    videoUrl:document.getElementById('f-video').value.trim(),
+  };
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true;btn.textContent='сохраняю...';
+  try{
+    if(editId){
+      await apiPost({action:'update',entry});
+      entries=entries.filter(e=>e.id!=editId);
+    } else {
+      await apiPost({action:'add',entry});
+    }
+    entries.push(entry);
+    entries.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    showToast('сохранено 🍒');
+    setTimeout(()=>showScreen('main'),1200);
+  }catch(e){showToast('ошибка при сохранении',true);btn.disabled=false;btn.textContent='сохранить 🍒';}
+}
+
+async function addComment(entryId){
+  const name=document.getElementById('comment-name').value;
+  const text=document.getElementById('comment-text').value.trim();
+  if(!name){showToast('выбери своё имя',true);return;}
+  if(!text){showToast('напиши комментарий',true);return;}
+  const entry=entries.find(e=>e.id==entryId);
+  if(!entry)return;
+  const now=new Date();
+  const timeStr=now.getDate()+' '+['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'][now.getMonth()]+' '+now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
+  const comment={name,text,time:timeStr};
+  entry.comments=entry.comments||[];
+  entry.comments.push(comment);
+  try{
+    await apiPost({action:'update',entry});
+    document.getElementById('comment-text').value='';
+    renderAlbum(entryId);
+    showToast('комментарий добавлен 🍒');
+  }catch(e){showToast('ошибка при сохранении',true);}
+}
+
+async function deleteComment(entryId,idx){
+  const entry=entries.find(e=>e.id==entryId);
+  if(!entry)return;
+  entry.comments=entry.comments||[];
+  entry.comments.splice(idx,1);
+  try{
+    await apiPost({action:'update',entry});
+    renderAlbum(entryId);
+  }catch(e){showToast('ошибка при удалении',true);}
+}
+
+function showToast(msg,isError=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast show'+(isError?' error':'');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+loadEntries();
+</script>
+</body>
+</html>
